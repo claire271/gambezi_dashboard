@@ -1,0 +1,50 @@
+html {
+	height: 100%;
+}
+
+body {
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	font-family: helvetica;
+}
+
+#tree {
+	overflow-x: auto;
+	overflow-y: auto;
+	display: inline-block;
+	width: 16em;
+	height: 100%;
+	background-color: #DFDFDF;
+}
+
+#view {
+	display: inline-block;
+	width: calc(100% - 16em);
+	height: 100%;
+	background-color: #EFEFEF;
+	position: relative;
+	-moz-user-select: none;
+	-webkit-user-select: none;
+	user-select: none;
+	overflow: hidden;
+}
+
+#view > div {
+	width: 100px;
+	height: 50px;
+	background-color: #DFDFDF;
+	position: absolute;
+	overflow: hidden;
+}
+
+.tree_node > button{
+	border-left: 0px;
+	border-right: 0px;
+	width: 2em;
+}
+
+.tree_node > div {
+	margin-left: 1em;
+	display: none;
+}
