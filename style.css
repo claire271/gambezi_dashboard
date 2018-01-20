@@ -59,8 +59,12 @@ body {
 }
 
 .view_menu {
-	background-color: #CFCFCF;
+	background-color: #DFDFDF;
 	position: absolute;
+}
+
+.view_menu > a {
+	width: 100%;
 }
 
 .tree_node > button{

@@ -51,66 +51,88 @@ function DataNode(gambeziNode, parentDiv) {
 		// Create div
 		let div = document.createElement('div');
 		div.classList.add('view_node');
-		div.style.width = grid_size * 3 + 'px';
-		div.style.height = grid_size * 1 + 'px';
+		div.style.width = grid_size * 6 + 'px';
+		div.style.height = grid_size * 2 + 'px';
 
 		// Create header
 		let header = document.createElement('div');
 		let settings = document.createElement('a');
 		settings.innerHTML = '&#9881;';
 		settings.onclick = function(event) {
-			// Create context menu
-			let menu = document.createElement('div');
-			menu.classList.add('view_menu');
-			menu.style.left = event.clientX - view.offsetLeft;
-			menu.style.top = event.clientY - view.offsetTop;
-
-			// Create buttons
-			let close = document.createElement('a');
-			close.innerHTML = 'Close';
-			close.onclick = function(event) {
-				view.removeChild(menu);
-			};
-			let remove = document.createElement('a');
-			remove.innerHTML = 'Remove';
-			remove.onclick = function(event) {
-				view.removeChild(menu);
-				clear_contents(gambeziNode, div, contents);
-				view.removeChild(div);
-			};
-
-			// Add
-			menu.appendChild(close);
-			menu.appendChild(document.createElement('br'));
-			menu.appendChild(remove);
-
-			// Change data type buttons
-			let data_type = div.getAttribute('data_type');
-			if(data_type != 'input_number') {
-				let button = document.createElement('a');
-				button.innerHTML = 'Input Number';
-				button.onclick = function(event) {
-					view.removeChild(menu);
-					clear_contents(gambeziNode, div, contents);
-					create_input_number(gambeziNode, div, contents);
-				};
-				menu.appendChild(document.createElement('br'));
-				menu.appendChild(button);
-			}
-			if(data_type != 'output_number') {
-				let button = document.createElement('a');
-				button.innerHTML = 'Output Number';
-				button.onclick = function(event) {
-					view.removeChild(menu);
-					clear_contents(gambeziNode, div, contents);
-					create_output_number(gambeziNode, div, contents);
-				};
-				menu.appendChild(document.createElement('br'));
-				menu.appendChild(button);
+			// Remove old menu
+			let element = document.querySelector('.view_menu');
+			if(element != null && !element.contains(event.target)) {
+				view.removeChild(element);
 			}
 
-			// Add
-			view.appendChild(menu);
+			// Create if necessary
+			if(document.querySelector('.view_menu') == null) {
+				// Create context menu
+				let menu = document.createElement('div');
+				menu.classList.add('view_menu');
+				menu.style.left = event.clientX - view.offsetLeft;
+				menu.style.top = event.clientY - view.offsetTop;
+
+				// Create buttons
+				let remove = document.createElement('a');
+				remove.innerHTML = 'Remove';
+				remove.onclick = function(event) {
+					view.removeChild(menu);
+					clear_contents(gambeziNode, div, contents);
+					view.removeChild(div);
+				};
+				menu.appendChild(remove);
+
+				// Change data type buttons
+				let data_type = div.getAttribute('data_type');
+				if(data_type != 'input_number') {
+					let button = document.createElement('a');
+					button.innerHTML = 'Input Number';
+					button.onclick = function(event) {
+						view.removeChild(menu);
+						clear_contents(gambeziNode, div, contents);
+						create_input_number(gambeziNode, div, contents);
+					};
+					menu.appendChild(document.createElement('br'));
+					menu.appendChild(button);
+				}
+				if(data_type != 'output_number') {
+					let button = document.createElement('a');
+					button.innerHTML = 'Output Number';
+					button.onclick = function(event) {
+						view.removeChild(menu);
+						clear_contents(gambeziNode, div, contents);
+						create_output_number(gambeziNode, div, contents);
+					};
+					menu.appendChild(document.createElement('br'));
+					menu.appendChild(button);
+				}
+				if(data_type != 'input_boolean') {
+					let button = document.createElement('a');
+					button.innerHTML = 'Input Boolean';
+					button.onclick = function(event) {
+						view.removeChild(menu);
+						clear_contents(gambeziNode, div, contents);
+						create_input_boolean(gambeziNode, div, contents);
+					};
+					menu.appendChild(document.createElement('br'));
+					menu.appendChild(button);
+				}
+				if(data_type != 'output_boolean') {
+					let button = document.createElement('a');
+					button.innerHTML = 'Output Boolean';
+					button.onclick = function(event) {
+						view.removeChild(menu);
+						clear_contents(gambeziNode, div, contents);
+						create_output_boolean(gambeziNode, div, contents);
+					};
+					menu.appendChild(document.createElement('br'));
+					menu.appendChild(button);
+				}
+
+				// Add
+				view.appendChild(menu);
+			}
 		};
 		header.appendChild(document.createTextNode(gambeziNode.get_string_key().join('/')));
 		header.appendChild(settings);
@@ -145,6 +167,8 @@ function clear_contents(gambeziNode, div, contents) {
 
 function create_input_number(gambeziNode, div, contents) {
 	let field = document.createElement('input');
+	field.type = 'text';
+	div.style.backgroundColor = '#DFFFDF';
 	field.onchange = function(event) {
 		gambeziNode.set_double(field.value);
 	};
@@ -154,13 +178,53 @@ function create_input_number(gambeziNode, div, contents) {
 
 function create_output_number(gambeziNode, div, contents) {
 	let field = document.createElement('input');
+	field.type = 'text';
 	field.readOnly = true;
+	div.style.backgroundColor = '#DFDFFF';
+	contents.style.backgroundColor = 'transparent';
 	let ident = setInterval(function() {
 		field.value = gambeziNode.get_double();
 	}, 100);
 	contents.appendChild(field);
 	div.setAttribute('data_type', 'output_number');
 	div.setAttribute('timer_ident', ident);
+}
+
+function create_input_boolean(gambeziNode, div, contents) {
+	let field = document.createElement('input');
+	field.type = 'checkbox';
+	div.style.backgroundColor = '#DFFFDF';
+	contents.style.backgroundColor = 'transparent';
+	field.onchange = function(event) {
+		gambeziNode.set_boolean(field.checked);
+		contents.style.backgroundColor = field.checked ? '#00FF00' : '#FF0000';
+	};
+	contents.appendChild(field);
+	div.setAttribute('data_type', 'input_boolean');
+}
+
+function create_output_boolean(gambeziNode, div, contents) {
+	let field = document.createElement('input');
+	field.type = 'checkbox';
+	field.disabled = true;
+	div.style.backgroundColor = '#DFDFFF';
+	let ident = setInterval(function() {
+		field.checked = gambeziNode.get_boolean();
+		contents.style.backgroundColor = field.checked ? '#00FF00' : '#FF0000';
+	}, 100);
+	contents.appendChild(field);
+	div.setAttribute('data_type', 'output_boolean');
+	div.setAttribute('timer_ident', ident);
+}
+
+document.onclick = function(event) {
+	let element = document.querySelector('.view_menu');
+	if(event.target.parentElement.parentElement != null &&
+	   !event.target.parentElement.parentElement.classList.contains('view_node')) {
+		if(element != null && !element.contains(event.target)) {
+			view.removeChild(element);
+		}
+	}
 }
 
 DataNode.prototype.buildTree = function() {
@@ -181,7 +245,7 @@ DataNode.prototype.buildTree = function() {
 
 ////////////////////////////////////////////////////////////////////////////////
 // Create draggable interface
-var grid_size = 50;
+var grid_size = 25;
 interact('.view_node')
 .draggable({
 	snap: {
@@ -206,7 +270,7 @@ interact('.view_node')
 
 	// minimum size
 	restrictSize: {
-		min: { width: grid_size, height: grid_size },
+		min: { width: grid_size * 2, height: grid_size * 2 },
 	},
 })
 .on('resizemove', function (event) {
