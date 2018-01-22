@@ -78,7 +78,7 @@ function DataNode(gambeziNode, parentDiv) {
 				remove.innerHTML = 'Remove';
 				remove.onclick = function(event) {
 					view.removeChild(menu);
-					clear_contents(gambeziNode, div, contents);
+					contents = clear_contents(gambeziNode, div, contents);
 					view.removeChild(div);
 				};
 				menu.appendChild(remove);
@@ -90,7 +90,7 @@ function DataNode(gambeziNode, parentDiv) {
 					button.innerHTML = 'Input Number';
 					button.onclick = function(event) {
 						view.removeChild(menu);
-						clear_contents(gambeziNode, div, contents);
+						contents = clear_contents(gambeziNode, div, contents);
 						create_input_number(gambeziNode, div, contents);
 					};
 					menu.appendChild(document.createElement('br'));
@@ -101,7 +101,7 @@ function DataNode(gambeziNode, parentDiv) {
 					button.innerHTML = 'Output Number';
 					button.onclick = function(event) {
 						view.removeChild(menu);
-						clear_contents(gambeziNode, div, contents);
+						contents = clear_contents(gambeziNode, div, contents);
 						create_output_number(gambeziNode, div, contents);
 					};
 					menu.appendChild(document.createElement('br'));
@@ -112,7 +112,7 @@ function DataNode(gambeziNode, parentDiv) {
 					button.innerHTML = 'Input Boolean';
 					button.onclick = function(event) {
 						view.removeChild(menu);
-						clear_contents(gambeziNode, div, contents);
+						contents = clear_contents(gambeziNode, div, contents);
 						create_input_boolean(gambeziNode, div, contents);
 					};
 					menu.appendChild(document.createElement('br'));
@@ -123,7 +123,7 @@ function DataNode(gambeziNode, parentDiv) {
 					button.innerHTML = 'Output Boolean';
 					button.onclick = function(event) {
 						view.removeChild(menu);
-						clear_contents(gambeziNode, div, contents);
+						contents = clear_contents(gambeziNode, div, contents);
 						create_output_boolean(gambeziNode, div, contents);
 					};
 					menu.appendChild(document.createElement('br'));
@@ -161,13 +161,17 @@ function DataNode(gambeziNode, parentDiv) {
 
 function clear_contents(gambeziNode, div, contents) {
 	// Remove all children
-	while(contents.firstChild) contents.removeChild(contents.firstChild);
 	clearTimeout(div.getAttribute('timer_ident'));
+	contents.parentElement.removeChild(contents);
+	contents = document.createElement('div');
+	div.appendChild(contents);
+	return contents;
 }
 
 function create_input_number(gambeziNode, div, contents) {
 	let field = document.createElement('input');
 	field.type = 'text';
+	field.value = gambeziNode.get_double();
 	div.style.backgroundColor = '#DFFFDF';
 	field.onchange = function(event) {
 		gambeziNode.set_double(field.value);
@@ -181,7 +185,6 @@ function create_output_number(gambeziNode, div, contents) {
 	field.type = 'text';
 	field.readOnly = true;
 	div.style.backgroundColor = '#DFDFFF';
-	contents.style.backgroundColor = 'transparent';
 	let ident = setInterval(function() {
 		field.value = gambeziNode.get_double();
 	}, 100);
@@ -193,8 +196,9 @@ function create_output_number(gambeziNode, div, contents) {
 function create_input_boolean(gambeziNode, div, contents) {
 	let field = document.createElement('input');
 	field.type = 'checkbox';
+	field.checked = gambeziNode.get_boolean();
+	contents.style.backgroundColor = field.checked ? '#00FF00' : '#FF0000';
 	div.style.backgroundColor = '#DFFFDF';
-	contents.style.backgroundColor = 'transparent';
 	field.onchange = function(event) {
 		gambeziNode.set_boolean(field.checked);
 		contents.style.backgroundColor = field.checked ? '#00FF00' : '#FF0000';
