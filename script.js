@@ -159,6 +159,17 @@ function DataNode(gambeziNode, parentDiv) {
 					menu.appendChild(document.createElement('br'));
 					menu.appendChild(button);
 				}
+				if(data_type != 'log_string') {
+					let button = document.createElement('a');
+					button.innerHTML = 'Log String';
+					button.onclick = function(event) {
+						view.removeChild(menu);
+						contents = clear_contents(gambeziNode, div, contents);
+						create_log_string(gambeziNode, div, contents);
+					};
+					menu.appendChild(document.createElement('br'));
+					menu.appendChild(button);
+				}
 
 				//------------------------------------------------------------------------------
 				// Add
@@ -300,6 +311,30 @@ function create_output_string(gambeziNode, div, contents) {
 	contents.appendChild(field);
 	div.setAttribute('data_type', 'output_string');
 	div.setAttribute('timer_ident', ident);
+}
+
+function create_log_string(gambeziNode, div, contents) {
+	let field = document.createElement('textarea');
+	field.type = 'text';
+	field.readOnly = true;
+	field.rows = 1;
+	field.value = '';
+	gambeziNode.set_subscription(0);
+	div.style.backgroundColor = '#DFDFFF';
+	gambeziNode.on_update = function(node) {
+		let atBottom = field.scrollTop == (field.scrollHeight - field.clientHeight);
+		if(field.value == '') {
+			field.value = gambeziNode.get_string();
+		}
+		else {
+			field.value += '\n' + gambeziNode.get_string();
+		}
+		if(atBottom) {
+			field.scrollTop = field.scrollHeight - field.clientHeight;
+		}
+	};
+	contents.appendChild(field);
+	div.setAttribute('data_type', 'log_string');
 }
 
 ////////////////////////////////////////////////////////////////////////////////
