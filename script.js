@@ -170,6 +170,17 @@ function DataNode(gambeziNode, parentDiv) {
 					menu.appendChild(document.createElement('br'));
 					menu.appendChild(button);
 				}
+				if(data_type != 'button') {
+					let button = document.createElement('a');
+					button.innerHTML = 'Button';
+					button.onclick = function(event) {
+						view.removeChild(menu);
+						contents = clear_contents(gambeziNode, div, contents);
+						create_button(gambeziNode, div, contents);
+					};
+					menu.appendChild(document.createElement('br'));
+					menu.appendChild(button);
+				}
 
 				//------------------------------------------------------------------------------
 				// Add
@@ -335,6 +346,17 @@ function create_log_string(gambeziNode, div, contents) {
 	};
 	contents.appendChild(field);
 	div.setAttribute('data_type', 'log_string');
+}
+
+function create_button(gambeziNode, div, contents) {
+	let field = document.createElement('button');
+	field.innerHTML = 'Send';
+	div.style.backgroundColor = '#DFFFDF';
+	field.onclick = function(event) {
+		gambeziNode.set_boolean(true);
+	};
+	contents.appendChild(field);
+	div.setAttribute('data_type', 'button');
 }
 
 ////////////////////////////////////////////////////////////////////////////////
