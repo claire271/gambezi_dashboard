@@ -372,6 +372,18 @@ document.onclick = function(event) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// Allow tree to be resized
+interact('#tree')
+.resizable({
+	edges: { left: false, right: true, bottom: false, top: false },
+})
+.on('resizemove', function (event) {
+	var target = event.target;
+	document.querySelector('#tree').style.width = event.rect.width + 'px';
+	document.querySelector('#view').style.width = 'calc(100% - ' + event.rect.width + 'px)';
+});
+
+////////////////////////////////////////////////////////////////////////////////
 // Create draggable interface
 var grid_size = 25;
 interact('.view_node')
