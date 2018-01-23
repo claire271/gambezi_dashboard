@@ -21,17 +21,19 @@ setInterval(function() {
 var view = document.querySelector('#view');
 
 ////////////////////////////////////////////////////////////////////////////////
-// Tree structure
+// Tree structure creation
 function DataNode(gambeziNode, parentDiv) {
 	this.gambeziNode = gambeziNode;
 	this.children = [];
 
+	//==============================================================================
 	// Create divs
 	this.parentDiv = parentDiv;
 	this.div = document.createElement('div');
 	this.div.classList.add('tree_node');
 	this.childDiv = document.createElement('div');
 
+	//==============================================================================
 	// Create controls
 	let expand = document.createElement('button');
 	expand.innerHTML = '&gt;';
@@ -48,6 +50,7 @@ function DataNode(gambeziNode, parentDiv) {
 	let add = document.createElement('button');
 	add.innerHTML = '+';
 
+	//==============================================================================
 	// Add handler
 	add.onclick = function(event) {
 		// Create div
@@ -69,12 +72,14 @@ function DataNode(gambeziNode, parentDiv) {
 
 			// Create if necessary
 			if(document.querySelector('.view_menu') == null) {
+				//------------------------------------------------------------------------------
 				// Create context menu
 				let menu = document.createElement('div');
 				menu.classList.add('view_menu');
 				menu.style.left = event.clientX - view.offsetLeft;
 				menu.style.top = event.clientY - view.offsetTop;
 
+				//------------------------------------------------------------------------------
 				// Create buttons
 				let remove = document.createElement('a');
 				remove.innerHTML = 'Remove';
@@ -85,6 +90,7 @@ function DataNode(gambeziNode, parentDiv) {
 				};
 				menu.appendChild(remove);
 
+				//------------------------------------------------------------------------------
 				// Change data type buttons
 				let data_type = div.getAttribute('data_type');
 				if(data_type != 'input_number') {
@@ -131,7 +137,30 @@ function DataNode(gambeziNode, parentDiv) {
 					menu.appendChild(document.createElement('br'));
 					menu.appendChild(button);
 				}
+				if(data_type != 'input_string') {
+					let button = document.createElement('a');
+					button.innerHTML = 'Input String';
+					button.onclick = function(event) {
+						view.removeChild(menu);
+						contents = clear_contents(gambeziNode, div, contents);
+						create_input_string(gambeziNode, div, contents);
+					};
+					menu.appendChild(document.createElement('br'));
+					menu.appendChild(button);
+				}
+				if(data_type != 'output_string') {
+					let button = document.createElement('a');
+					button.innerHTML = 'Output String';
+					button.onclick = function(event) {
+						view.removeChild(menu);
+						contents = clear_contents(gambeziNode, div, contents);
+						create_output_string(gambeziNode, div, contents);
+					};
+					menu.appendChild(document.createElement('br'));
+					menu.appendChild(button);
+				}
 
+				//------------------------------------------------------------------------------
 				// Add
 				view.appendChild(menu);
 			}
@@ -149,18 +178,38 @@ function DataNode(gambeziNode, parentDiv) {
 		view.appendChild(div);
 	}.bind(this);
 
+	//==============================================================================
 	// Add all children
 	this.div.appendChild(expand);
 	this.div.appendChild(document.createTextNode(gambeziNode.get_name()));
 	this.div.appendChild(add);
 	this.div.appendChild(this.childDiv);
 
+	//==============================================================================
 	// Add if not the root node
 	if(parentDiv != null) {
 		parentDiv.appendChild(this.div);
 	}
 }
 
+DataNode.prototype.buildTree = function() {
+	// Add new children if the number has changed
+	let gambeziChildren = this.gambeziNode.get_children();
+	if(gambeziChildren.length > this.children.length) {
+		for(let i = this.children.length;i < gambeziChildren.length;i++) {
+			let child = new DataNode(gambeziChildren[i], (this.parentDiv == null) ? rootDiv : this.childDiv);
+			this.children.push(child);
+		}
+	}
+	
+	// Check children recursively
+	for(let child of this.children) {
+		child.buildTree();
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Method for clearing an input output view
 function clear_contents(gambeziNode, div, contents) {
 	// Remove all children
 	clearTimeout(div.getAttribute('timer_ident'));
@@ -170,6 +219,8 @@ function clear_contents(gambeziNode, div, contents) {
 	return contents;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// Input output generation methods
 function create_input_number(gambeziNode, div, contents) {
 	let field = document.createElement('input');
 	field.type = 'text';
@@ -225,6 +276,34 @@ function create_output_boolean(gambeziNode, div, contents) {
 	div.setAttribute('timer_ident', ident);
 }
 
+function create_input_string(gambeziNode, div, contents) {
+	let field = document.createElement('input');
+	field.type = 'text';
+	field.value = gambeziNode.get_string();
+	div.style.backgroundColor = '#DFFFDF';
+	field.onchange = function(event) {
+		gambeziNode.set_string(field.value);
+	};
+	contents.appendChild(field);
+	div.setAttribute('data_type', 'input_string');
+}
+
+function create_output_string(gambeziNode, div, contents) {
+	let field = document.createElement('input');
+	field.type = 'text';
+	field.readOnly = true;
+	gambeziNode.set_subscription(1);
+	div.style.backgroundColor = '#DFDFFF';
+	let ident = setInterval(function() {
+		field.value = gambeziNode.get_string();
+	}, 100);
+	contents.appendChild(field);
+	div.setAttribute('data_type', 'output_string');
+	div.setAttribute('timer_ident', ident);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Menu dismissal handler
 document.onclick = function(event) {
 	let element = document.querySelector('.view_menu');
 	if(event.target.parentElement.parentElement != null &&
@@ -232,22 +311,6 @@ document.onclick = function(event) {
 		if(element != null && !element.contains(event.target)) {
 			view.removeChild(element);
 		}
-	}
-}
-
-DataNode.prototype.buildTree = function() {
-	// Add new children if the number has changed
-	let gambeziChildren = this.gambeziNode.get_children();
-	if(gambeziChildren.length > this.children.length) {
-		for(let i = this.children.length;i < gambeziChildren.length;i++) {
-			let child = new DataNode(gambeziChildren[i], (this.parentDiv == null) ? rootDiv : this.childDiv);
-			this.children.push(child);
-		}
-	}
-	
-	// Check children recursively
-	for(let child of this.children) {
-		child.buildTree();
 	}
 }
 
