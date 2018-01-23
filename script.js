@@ -2,6 +2,8 @@
 // Initialize gambezi
 //var gambezi = new Gambezi('pivision.local:5809');
 var gambezi = new Gambezi('localhost:5809');
+gambezi.set_refresh_rate(100);
+gambezi.set_default_subscription(1);
 
 // Initialize root node
 var rootNode = new DataNode(gambezi.get_root_node(), null);
@@ -184,6 +186,7 @@ function create_output_number(gambeziNode, div, contents) {
 	let field = document.createElement('input');
 	field.type = 'text';
 	field.readOnly = true;
+	gambeziNode.set_subscription(1);
 	div.style.backgroundColor = '#DFDFFF';
 	let ident = setInterval(function() {
 		field.value = gambeziNode.get_double();
@@ -211,6 +214,7 @@ function create_output_boolean(gambeziNode, div, contents) {
 	let field = document.createElement('input');
 	field.type = 'checkbox';
 	field.disabled = true;
+	gambeziNode.set_subscription(1);
 	div.style.backgroundColor = '#DFDFFF';
 	let ident = setInterval(function() {
 		field.checked = gambeziNode.get_boolean();
