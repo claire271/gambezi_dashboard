@@ -81,6 +81,11 @@ function DataNode(gambeziNode, parentDiv) {
 
 				//------------------------------------------------------------------------------
 				// Create buttons
+				let data_type = div.getAttribute('data_type');
+				let type_label = document.createElement('b');
+				type_label.innerHTML = data_type;
+				menu.appendChild(type_label);
+
 				let remove = document.createElement('a');
 				remove.innerHTML = 'Remove';
 				remove.onclick = function(event) {
@@ -88,99 +93,88 @@ function DataNode(gambeziNode, parentDiv) {
 					contents = clear_contents(gambeziNode, div, contents);
 					view.removeChild(div);
 				};
+				menu.appendChild(document.createElement('br'));
 				menu.appendChild(remove);
 
-				//------------------------------------------------------------------------------
-				// Change data type buttons
-				let data_type = div.getAttribute('data_type');
-				if(data_type != 'input_number') {
-					let button = document.createElement('a');
-					button.innerHTML = 'Input Number';
-					button.onclick = function(event) {
-						view.removeChild(menu);
-						contents = clear_contents(gambeziNode, div, contents);
-						create_input_number(gambeziNode, div, contents);
-					};
-					menu.appendChild(document.createElement('br'));
-					menu.appendChild(button);
-				}
-				if(data_type != 'output_number') {
-					let button = document.createElement('a');
-					button.innerHTML = 'Output Number';
-					button.onclick = function(event) {
-						view.removeChild(menu);
-						contents = clear_contents(gambeziNode, div, contents);
-						create_output_number(gambeziNode, div, contents);
-					};
-					menu.appendChild(document.createElement('br'));
-					menu.appendChild(button);
-				}
-				if(data_type != 'input_boolean') {
-					let button = document.createElement('a');
-					button.innerHTML = 'Input Boolean';
-					button.onclick = function(event) {
-						view.removeChild(menu);
-						contents = clear_contents(gambeziNode, div, contents);
-						create_input_boolean(gambeziNode, div, contents);
-					};
-					menu.appendChild(document.createElement('br'));
-					menu.appendChild(button);
-				}
-				if(data_type != 'output_boolean') {
-					let button = document.createElement('a');
-					button.innerHTML = 'Output Boolean';
-					button.onclick = function(event) {
-						view.removeChild(menu);
-						contents = clear_contents(gambeziNode, div, contents);
-						create_output_boolean(gambeziNode, div, contents);
-					};
-					menu.appendChild(document.createElement('br'));
-					menu.appendChild(button);
-				}
-				if(data_type != 'input_string') {
-					let button = document.createElement('a');
-					button.innerHTML = 'Input String';
-					button.onclick = function(event) {
-						view.removeChild(menu);
-						contents = clear_contents(gambeziNode, div, contents);
-						create_input_string(gambeziNode, div, contents);
-					};
-					menu.appendChild(document.createElement('br'));
-					menu.appendChild(button);
-				}
-				if(data_type != 'output_string') {
-					let button = document.createElement('a');
-					button.innerHTML = 'Output String';
-					button.onclick = function(event) {
-						view.removeChild(menu);
-						contents = clear_contents(gambeziNode, div, contents);
-						create_output_string(gambeziNode, div, contents);
-					};
-					menu.appendChild(document.createElement('br'));
-					menu.appendChild(button);
-				}
-				if(data_type != 'log_string') {
-					let button = document.createElement('a');
-					button.innerHTML = 'Log String';
-					button.onclick = function(event) {
-						view.removeChild(menu);
-						contents = clear_contents(gambeziNode, div, contents);
-						create_log_string(gambeziNode, div, contents);
-					};
-					menu.appendChild(document.createElement('br'));
-					menu.appendChild(button);
-				}
-				if(data_type != 'button') {
-					let button = document.createElement('a');
-					button.innerHTML = 'Button';
-					button.onclick = function(event) {
-						view.removeChild(menu);
-						contents = clear_contents(gambeziNode, div, contents);
-						create_button(gambeziNode, div, contents);
-					};
-					menu.appendChild(document.createElement('br'));
-					menu.appendChild(button);
-				}
+				let button = document.createElement('a');
+				button.innerHTML = 'Input Number';
+				button.onclick = function(event) {
+					view.removeChild(menu);
+					contents = clear_contents(gambeziNode, div, contents);
+					create_input_number(gambeziNode, div, contents);
+				};
+				menu.appendChild(document.createElement('br'));
+				menu.appendChild(button);
+
+				button = document.createElement('a');
+				button.innerHTML = 'Output Number';
+				button.onclick = function(event) {
+					view.removeChild(menu);
+					contents = clear_contents(gambeziNode, div, contents);
+					create_output_number(gambeziNode, div, contents);
+				};
+				menu.appendChild(document.createElement('br'));
+				menu.appendChild(button);
+
+				button = document.createElement('a');
+				button.innerHTML = 'Input Boolean';
+				button.onclick = function(event) {
+					view.removeChild(menu);
+					contents = clear_contents(gambeziNode, div, contents);
+					create_input_boolean(gambeziNode, div, contents);
+				};
+				menu.appendChild(document.createElement('br'));
+				menu.appendChild(button);
+
+				button = document.createElement('a');
+				button.innerHTML = 'Output Boolean';
+				button.onclick = function(event) {
+					view.removeChild(menu);
+					contents = clear_contents(gambeziNode, div, contents);
+					create_output_boolean(gambeziNode, div, contents);
+				};
+				menu.appendChild(document.createElement('br'));
+				menu.appendChild(button);
+
+				button = document.createElement('a');
+				button.innerHTML = 'Input String';
+				button.onclick = function(event) {
+					view.removeChild(menu);
+					contents = clear_contents(gambeziNode, div, contents);
+					create_input_string(gambeziNode, div, contents);
+				};
+				menu.appendChild(document.createElement('br'));
+				menu.appendChild(button);
+
+				button = document.createElement('a');
+				button.innerHTML = 'Output String';
+				button.onclick = function(event) {
+					view.removeChild(menu);
+					contents = clear_contents(gambeziNode, div, contents);
+					create_output_string(gambeziNode, div, contents);
+				};
+				menu.appendChild(document.createElement('br'));
+				menu.appendChild(button);
+
+				button = document.createElement('a');
+				button.innerHTML = 'Log String';
+				button.onclick = function(event) {
+					view.removeChild(menu);
+					contents = clear_contents(gambeziNode, div, contents);
+					create_log_string(gambeziNode, div, contents);
+				};
+				menu.appendChild(document.createElement('br'));
+				menu.appendChild(button);
+
+				button = document.createElement('a');
+				button.innerHTML = 'Button';
+				button.onclick = function(event) {
+					view.removeChild(menu);
+					contents = clear_contents(gambeziNode, div, contents);
+					create_button(gambeziNode, div, contents);
+				};
+				menu.appendChild(document.createElement('br'));
+				menu.appendChild(button);
 
 				//------------------------------------------------------------------------------
 				// Add
