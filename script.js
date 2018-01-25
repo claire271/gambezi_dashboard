@@ -1,8 +1,14 @@
 ////////////////////////////////////////////////////////////////////////////////
+// UI variables
+var tree_button_state = 'add';
+var graph_secondary_update = null;
+
+////////////////////////////////////////////////////////////////////////////////
 // Initialize gambezi
+var refresh_rate = 100;
 //var gambezi = new Gambezi('pivision.local:5809');
 var gambezi = new Gambezi('localhost:5809');
-gambezi.set_refresh_rate(100);
+gambezi.set_refresh_rate(refresh_rate);
 gambezi.set_default_subscription(1);
 
 // Initialize root node
@@ -53,145 +59,166 @@ function DataNode(gambeziNode, parentDiv) {
 	//==============================================================================
 	// Add handler
 	add.onclick = function(event) {
-		// Create div
-		let div = document.createElement('div');
-		div.classList.add('view_node');
-		div.style.width = grid_size * 6 + 'px';
-		div.style.height = grid_size * 2 + 'px';
+		if(tree_button_state == 'add') {
+			// Create div
+			let div = document.createElement('div');
+			div.classList.add('view_node');
+			div.style.width = grid_size * 6 + 'px';
+			div.style.height = grid_size * 2 + 'px';
 
-		// Create header
-		let header = document.createElement('div');
-		let settings = document.createElement('a');
-		settings.innerHTML = '&#9881;';
-		settings.onclick = function(event) {
-			// Remove old menu
-			let element = document.querySelector('.view_menu');
-			if(element != null && !element.contains(event.target)) {
-				view.removeChild(element);
+			// Create header
+			let header = document.createElement('div');
+			let settings = document.createElement('a');
+			settings.innerHTML = '&#9881;';
+			settings.onclick = function(event) {
+				// Remove old menu
+				let element = document.querySelector('.view_menu');
+				if(element != null && !element.contains(event.target)) {
+					view.removeChild(element);
+				}
+
+				// Create if necessary
+				if(document.querySelector('.view_menu') == null) {
+					//------------------------------------------------------------------------------
+					// Create context menu
+					let menu = document.createElement('div');
+					menu.classList.add('view_menu');
+					menu.style.left = event.clientX - view.offsetLeft;
+					menu.style.top = event.clientY - view.offsetTop;
+
+					//------------------------------------------------------------------------------
+					// Create buttons
+					let data_type = div.getAttribute('data_type');
+					let type_label = document.createElement('b');
+					type_label.innerHTML = data_type;
+					menu.appendChild(type_label);
+
+					let button = document.createElement('a');
+					button.innerHTML = 'Remove';
+					button.onclick = function(event) {
+						view.removeChild(menu);
+						contents = clear_contents(gambeziNode, div, contents);
+						view.removeChild(div);
+					};
+					menu.appendChild(document.createElement('br'));
+					menu.appendChild(button);
+
+					button = document.createElement('a');
+					button.innerHTML = 'Input Number';
+					button.onclick = function(event) {
+						view.removeChild(menu);
+						contents = clear_contents(gambeziNode, div, contents);
+						create_input_number(gambeziNode, div, contents);
+					};
+					menu.appendChild(document.createElement('br'));
+					menu.appendChild(button);
+
+					button = document.createElement('a');
+					button.innerHTML = 'Output Number';
+					button.onclick = function(event) {
+						view.removeChild(menu);
+						contents = clear_contents(gambeziNode, div, contents);
+						create_output_number(gambeziNode, div, contents);
+					};
+					menu.appendChild(document.createElement('br'));
+					menu.appendChild(button);
+
+					button = document.createElement('a');
+					button.innerHTML = 'Input Boolean';
+					button.onclick = function(event) {
+						view.removeChild(menu);
+						contents = clear_contents(gambeziNode, div, contents);
+						create_input_boolean(gambeziNode, div, contents);
+					};
+					menu.appendChild(document.createElement('br'));
+					menu.appendChild(button);
+
+					button = document.createElement('a');
+					button.innerHTML = 'Output Boolean';
+					button.onclick = function(event) {
+						view.removeChild(menu);
+						contents = clear_contents(gambeziNode, div, contents);
+						create_output_boolean(gambeziNode, div, contents);
+					};
+					menu.appendChild(document.createElement('br'));
+					menu.appendChild(button);
+
+					button = document.createElement('a');
+					button.innerHTML = 'Input String';
+					button.onclick = function(event) {
+						view.removeChild(menu);
+						contents = clear_contents(gambeziNode, div, contents);
+						create_input_string(gambeziNode, div, contents);
+					};
+					menu.appendChild(document.createElement('br'));
+					menu.appendChild(button);
+
+					button = document.createElement('a');
+					button.innerHTML = 'Output String';
+					button.onclick = function(event) {
+						view.removeChild(menu);
+						contents = clear_contents(gambeziNode, div, contents);
+						create_output_string(gambeziNode, div, contents);
+					};
+					menu.appendChild(document.createElement('br'));
+					menu.appendChild(button);
+
+					button = document.createElement('a');
+					button.innerHTML = 'Log String';
+					button.onclick = function(event) {
+						view.removeChild(menu);
+						contents = clear_contents(gambeziNode, div, contents);
+						create_log_string(gambeziNode, div, contents);
+					};
+					menu.appendChild(document.createElement('br'));
+					menu.appendChild(button);
+
+					button = document.createElement('a');
+					button.innerHTML = 'Button';
+					button.onclick = function(event) {
+						view.removeChild(menu);
+						contents = clear_contents(gambeziNode, div, contents);
+						create_button(gambeziNode, div, contents);
+					};
+					menu.appendChild(document.createElement('br'));
+					menu.appendChild(button);
+
+					button = document.createElement('a');
+					button.innerHTML = 'Graph Number';
+					button.onclick = function(event) {
+						view.removeChild(menu);
+						contents = clear_contents(gambeziNode, div, contents);
+						create_graph_number(gambeziNode, div, contents);
+					};
+					menu.appendChild(document.createElement('br'));
+					menu.appendChild(button);
+
+					//------------------------------------------------------------------------------
+					// Add
+					view.appendChild(menu);
+				}
+			};
+			header.appendChild(document.createTextNode(gambeziNode.get_string_key().join('/')));
+			header.appendChild(settings);
+			
+			// Create contents
+			let contents = document.createElement('div');
+			create_output_number(gambeziNode, div, contents);
+
+			// Add 
+			div.appendChild(header);
+			div.appendChild(contents);
+			view.appendChild(div);
+		}
+		else if(tree_button_state == 'graph') {
+			// Update graph element
+			if(graph_secondary_update != null) {
+				graph_secondary_update(gambeziNode);
 			}
 
-			// Create if necessary
-			if(document.querySelector('.view_menu') == null) {
-				//------------------------------------------------------------------------------
-				// Create context menu
-				let menu = document.createElement('div');
-				menu.classList.add('view_menu');
-				menu.style.left = event.clientX - view.offsetLeft;
-				menu.style.top = event.clientY - view.offsetTop;
-
-				//------------------------------------------------------------------------------
-				// Create buttons
-				let data_type = div.getAttribute('data_type');
-				let type_label = document.createElement('b');
-				type_label.innerHTML = data_type;
-				menu.appendChild(type_label);
-
-				let remove = document.createElement('a');
-				remove.innerHTML = 'Remove';
-				remove.onclick = function(event) {
-					view.removeChild(menu);
-					contents = clear_contents(gambeziNode, div, contents);
-					view.removeChild(div);
-				};
-				menu.appendChild(document.createElement('br'));
-				menu.appendChild(remove);
-
-				let button = document.createElement('a');
-				button.innerHTML = 'Input Number';
-				button.onclick = function(event) {
-					view.removeChild(menu);
-					contents = clear_contents(gambeziNode, div, contents);
-					create_input_number(gambeziNode, div, contents);
-				};
-				menu.appendChild(document.createElement('br'));
-				menu.appendChild(button);
-
-				button = document.createElement('a');
-				button.innerHTML = 'Output Number';
-				button.onclick = function(event) {
-					view.removeChild(menu);
-					contents = clear_contents(gambeziNode, div, contents);
-					create_output_number(gambeziNode, div, contents);
-				};
-				menu.appendChild(document.createElement('br'));
-				menu.appendChild(button);
-
-				button = document.createElement('a');
-				button.innerHTML = 'Input Boolean';
-				button.onclick = function(event) {
-					view.removeChild(menu);
-					contents = clear_contents(gambeziNode, div, contents);
-					create_input_boolean(gambeziNode, div, contents);
-				};
-				menu.appendChild(document.createElement('br'));
-				menu.appendChild(button);
-
-				button = document.createElement('a');
-				button.innerHTML = 'Output Boolean';
-				button.onclick = function(event) {
-					view.removeChild(menu);
-					contents = clear_contents(gambeziNode, div, contents);
-					create_output_boolean(gambeziNode, div, contents);
-				};
-				menu.appendChild(document.createElement('br'));
-				menu.appendChild(button);
-
-				button = document.createElement('a');
-				button.innerHTML = 'Input String';
-				button.onclick = function(event) {
-					view.removeChild(menu);
-					contents = clear_contents(gambeziNode, div, contents);
-					create_input_string(gambeziNode, div, contents);
-				};
-				menu.appendChild(document.createElement('br'));
-				menu.appendChild(button);
-
-				button = document.createElement('a');
-				button.innerHTML = 'Output String';
-				button.onclick = function(event) {
-					view.removeChild(menu);
-					contents = clear_contents(gambeziNode, div, contents);
-					create_output_string(gambeziNode, div, contents);
-				};
-				menu.appendChild(document.createElement('br'));
-				menu.appendChild(button);
-
-				button = document.createElement('a');
-				button.innerHTML = 'Log String';
-				button.onclick = function(event) {
-					view.removeChild(menu);
-					contents = clear_contents(gambeziNode, div, contents);
-					create_log_string(gambeziNode, div, contents);
-				};
-				menu.appendChild(document.createElement('br'));
-				menu.appendChild(button);
-
-				button = document.createElement('a');
-				button.innerHTML = 'Button';
-				button.onclick = function(event) {
-					view.removeChild(menu);
-					contents = clear_contents(gambeziNode, div, contents);
-					create_button(gambeziNode, div, contents);
-				};
-				menu.appendChild(document.createElement('br'));
-				menu.appendChild(button);
-
-				//------------------------------------------------------------------------------
-				// Add
-				view.appendChild(menu);
-			}
-		};
-		header.appendChild(document.createTextNode(gambeziNode.get_string_key().join('/')));
-		header.appendChild(settings);
-		
-		// Create contents
-		let contents = document.createElement('div');
-		create_output_number(gambeziNode, div, contents);
-
-		// Add 
-		div.appendChild(header);
-		div.appendChild(contents);
-		view.appendChild(div);
+			// Update state
+			tree_button_state = 'add';
+		}
 	}.bind(this);
 
 	//==============================================================================
@@ -257,7 +284,7 @@ function create_output_number(gambeziNode, div, contents) {
 	div.style.backgroundColor = '#DFDFFF';
 	let ident = setInterval(function() {
 		field.value = gambeziNode.get_double();
-	}, 100);
+	}, refresh_rate);
 	contents.appendChild(field);
 	div.setAttribute('data_type', 'output_number');
 	div.setAttribute('timer_ident', ident);
@@ -286,7 +313,7 @@ function create_output_boolean(gambeziNode, div, contents) {
 	let ident = setInterval(function() {
 		field.checked = gambeziNode.get_boolean();
 		contents.style.backgroundColor = field.checked ? '#00FF00' : '#FF0000';
-	}, 100);
+	}, refresh_rate);
 	contents.appendChild(field);
 	div.setAttribute('data_type', 'output_boolean');
 	div.setAttribute('timer_ident', ident);
@@ -312,7 +339,7 @@ function create_output_string(gambeziNode, div, contents) {
 	div.style.backgroundColor = '#DFDFFF';
 	let ident = setInterval(function() {
 		field.value = gambeziNode.get_string();
-	}, 100);
+	}, refresh_rate);
 	contents.appendChild(field);
 	div.setAttribute('data_type', 'output_string');
 	div.setAttribute('timer_ident', ident);
@@ -353,15 +380,171 @@ function create_button(gambeziNode, div, contents) {
 	div.setAttribute('data_type', 'button');
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// Menu dismissal handler
-document.onclick = function(event) {
-	let element = document.querySelector('.view_menu');
-	if(event.target.parentElement.parentElement != null &&
-	   !event.target.parentElement.parentElement.classList.contains('view_node')) {
+function create_graph_number(gambeziNode0, div, contents0) {
+	// Parameters
+	let margin_top = 50;
+	let margin_left = 50;
+	let margin_bottom = 50;
+	let margin_right = 50;
+
+	// Variables
+	let gambeziNode1 = null;
+	let buffer_length = 30 * 1000 / refresh_rate;
+	let buffer0 = new Array(buffer_length);
+	let buffer1 = new Array(buffer_length);
+	let paused = false;
+	let autoscale = true;
+	let index = 0;
+	let min_x = 0;
+	let max_x = 30;
+	let min_y = -10;
+	let max_y = 10;
+
+	// Create second header
+	let header1 = document.createElement('div');
+	header1.style.flex = '0 1 auto';
+	header1.appendChild(document.createTextNode(''));
+
+	// Create settings button
+	let settings = document.createElement('a');
+	settings.innerHTML = '&#9881;';
+	settings.style.float = 'right';
+	settings.style.cursor = 'pointer';
+	settings.style.marginRight = '4px';
+	settings.onclick = function(event) {
+		// Remove old menu
+		let element = document.querySelector('.view_menu');
 		if(element != null && !element.contains(event.target)) {
 			view.removeChild(element);
 		}
+
+		// Create if necessary
+		if(document.querySelector('.view_menu') == null) {
+			//------------------------------------------------------------------------------
+			// Create context menu
+			let menu = document.createElement('div');
+			menu.classList.add('view_menu');
+			menu.style.left = event.clientX - view.offsetLeft;
+			menu.style.top = event.clientY - view.offsetTop;
+
+			//------------------------------------------------------------------------------
+			// Create buttons
+			let button = document.createElement('a');
+			button.innerHTML = 'Select Node';
+			button.onclick = function(event) {
+				view.removeChild(menu);
+				tree_button_state = 'graph';
+				graph_secondary_update = function(gambeziNode) {
+					gambeziNode1 = gambeziNode;
+					graph_secondary_update = null;
+					// Update header
+					header1.removeChild(header1.firstChild);
+					let subtitle = '';
+					if(gambeziNode1 != null) {
+						subtitle = gambeziNode1.get_string_key().join('/');
+					}
+					header1.insertBefore(document.createTextNode(subtitle), settings);
+				};
+			};
+			menu.appendChild(button);
+
+			let checkbox = document.createElement('input');
+			checkbox.type = 'checkbox';
+			checkbox.checked = paused;
+			checkbox.onclick = function(event) {
+				paused = checkbox.checked;
+			};
+			menu.appendChild(document.createElement('br'));
+			let label = document.createElement('label');
+			label.appendChild(checkbox);
+			label.appendChild(document.createTextNode('Paused'));
+			menu.appendChild(label);
+
+			checkbox = document.createElement('input');
+			checkbox.type = 'checkbox';
+			checkbox.checked = autoscale;
+			checkbox.onclick = function(event) {
+				autoscale = checkbox.checked;
+			};
+			menu.appendChild(document.createElement('br'));
+			label = document.createElement('label');
+			label.appendChild(checkbox);
+			label.appendChild(document.createTextNode('Autoscale'));
+			menu.appendChild(label);
+
+			//------------------------------------------------------------------------------
+			// Add
+			view.appendChild(menu);
+		}
+	};
+	header1.appendChild(settings);
+
+	// Create content area
+	let contents1 = document.createElement('div');
+	contents1.style.flex = '1 1 auto';
+
+	// Add divs
+	contents0.style.display = 'flex';
+	contents0.style.flexFlow = 'column';
+	contents0.appendChild(header1);
+	contents0.appendChild(contents1);
+
+	let canvas = document.createElement('canvas');
+	let ctx = canvas.getContext('2d');
+	gambeziNode0.set_subscription(1);
+	div.style.backgroundColor = '#DFDFFF';
+	let ident = setInterval(function() {
+		// Draw background
+		let width = div.clientWidth;
+		let height = div.clientHeight - div.firstChild.clientHeight;
+		canvas.width = width;
+		canvas.height = height;
+		ctx.fillStyle = '#FFFFFF';
+		ctx.fillRect(0, 0, width, height);
+
+		// Draw other stuff if not paused
+		if(!paused) {
+			// Get new data
+			buffer0[index] = gambeziNode0.get_double();
+		}
+
+
+	}, refresh_rate);
+	contents1.appendChild(canvas);
+	div.setAttribute('data_type', 'graph_number');
+	div.setAttribute('timer_ident', ident);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Document click handler
+document.onclick = function(event) {
+	// Menu dismissal handler
+	let element = document.querySelector('.view_menu');
+	let is_link = event.target.tagName == 'A';
+	let is_child_view_node = false;
+	let target = event.target;
+	while(target != null) {
+		if(target.classList.contains('view_node')) {
+			is_child_view_node = true;
+		}
+		target = target.parentElement;
+	}
+	if(!is_link || !is_child_view_node) {
+		if(element != null && !element.contains(event.target)) {
+			view.removeChild(element);
+		}
+	}
+
+	// Selection dismissal handler
+	if(!(event.target.tagName == 'BUTTON' && event.target.innerHTML == '+') &&
+	   !(event.target.tagName == 'A' && event.target.innerHTML == 'Select Node')) {
+		// Update graph element
+		if(graph_secondary_update != null) {
+			graph_secondary_update(null);
+		}
+
+		// Update state
+		tree_button_state = 'add';
 	}
 }
 
@@ -426,3 +609,4 @@ function dragMoveListener (event) {
 	target.setAttribute('data-y', y);
 }
 window.dragMoveListener = dragMoveListener;
+
