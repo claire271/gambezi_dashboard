@@ -386,7 +386,7 @@ function create_graph_number(gambeziNode0, div, contents0) {
 	let margin_top = 16;
 	let margin_left = 48;
 	let margin_bottom = 16;
-	let margin_right = 32;
+	let margin_right = 40;
 
 	// Variables
 	let gambeziNode1 = null;
@@ -856,7 +856,7 @@ function create_graph_number(gambeziNode0, div, contents0) {
 			ctx.fillStyle = text_color;
 			ctx.font = text_font;
 			for(let i = 0;i <= div_x;i++) {
-				ctx.fillText(roundSigFigs((i * buffer_length / div_x + offset) * refresh_rate / 1000, 3) + 's',
+				ctx.fillText(((i * buffer_length / div_x + offset) * refresh_rate / 1000).toPrecision(3) + 's',
 				             margin_left + i * graph_width / div_x,
 				             height - margin_bottom + text_size + 2);
 			}
@@ -864,7 +864,7 @@ function create_graph_number(gambeziNode0, div, contents0) {
 			// Draw vertical labels
 			ctx.fillStyle = text_color;
 			for(let i = 0;i <= div_y;i++) {
-				ctx.fillText(roundSigFigs(max_y - i * (max_y - min_y) / div_y, 3),
+				ctx.fillText((max_y - i * (max_y - min_y) / div_y).toPrecision(3) + '',
 				             2, margin_top + i * graph_height / div_y);
 			}
 		}
@@ -968,36 +968,3 @@ function dragMoveListener (event) {
 	target.setAttribute('data-y', y);
 }
 window.dragMoveListener = dragMoveListener;
-
-////////////////////////////////////////////////////////////////////////////////
-// Utility functions
-function roundSigFigs(value, sigFigs) {
-	// Escape if the value is invalid
-	if(value == 0 || isNaN(value) || value == Infinity || value == -Infinity) {
-		return value;
-	}
-
-	// Escape if the sig figs is invalid
-	if(sigFigs < 1) {
-		return value;
-	}
-
-	// Find order of magnitude
-	let magnitude = 1;
-	while(Math.abs(value) > 10) {
-		value /= 10;
-		magnitude *= 10;
-	}
-	while(Math.abs(value) < 1) {
-		value *= 10;
-		magnitude /= 10;
-	}
-
-	// Round to number of places
-	let rounding = Math.pow(10, sigFigs-1);
-	value = Math.round(value * rounding) / rounding;
-
-	// Return back to initial magnitude
-	value *= magnitude;
-	return value;
-}
