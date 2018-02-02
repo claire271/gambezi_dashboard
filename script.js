@@ -8,6 +8,7 @@ var graph_secondary_update = null;
 var refresh_rate = 100;
 //var gambezi = new Gambezi('pivision.local:5809');
 var gambezi = new Gambezi('localhost:5809');
+//var gambezi = new Gambezi('10.17.47.2:5809');
 gambezi.set_refresh_rate(refresh_rate);
 gambezi.set_default_subscription(1);
 
@@ -382,23 +383,70 @@ function create_button(gambeziNode, div, contents) {
 
 function create_graph_number(gambeziNode0, div, contents0) {
 	// Parameters
-	let margin_top = 50;
-	let margin_left = 50;
-	let margin_bottom = 50;
-	let margin_right = 50;
+	let margin_top = 16;
+	let margin_left = 48;
+	let margin_bottom = 16;
+	let margin_right = 32;
 
 	// Variables
 	let gambeziNode1 = null;
-	let buffer_length = 30 * 1000 / refresh_rate;
-	let buffer0 = new Array(buffer_length);
-	let buffer1 = new Array(buffer_length);
 	let paused = false;
 	let autoscale = true;
-	let index = 0;
-	let min_x = 0;
-	let max_x = 30;
-	let min_y = -10;
-	let max_y = 10;
+	let scroll = false;
+	let buffer_length = 30 * 1000 / refresh_rate;
+	let buffer0 = null;
+	let buffer1 = null;
+	let offset = null;
+	let index = null;
+	let min_y = null;
+	let max_y = null;
+	let div_y = null;
+	let div_x = null;
+	let background_color = null;
+	let grid_color = null;
+	let text_color = null;
+	let text_size = null;
+	let text_font = null;
+	let update_color = null;
+	let cursor_color = null;
+	let color0 = null;
+	let color1 = null;
+	let mouse_x = null;
+	let mouse_y = null;
+	let cursor_x = null;
+	function reset() {
+		if(buffer_length < 2) {
+			buffer_length = 2;
+		}
+		buffer0 = new Array(buffer_length);
+		buffer1 = new Array(buffer_length);
+		for(let i = 0;i < buffer_length;i++) {
+			buffer0[i] = NaN;
+			buffer1[i] = NaN;
+		}
+		offset = 0;
+		index = 0;
+	}
+	function full_reset() {
+		reset();
+		min_y = 0;
+		max_y = 0;
+		div_y = 4;
+		div_x = 6;
+		background_color = '#FFFFFF';
+		grid_color = '#BFBFBF';
+		text_color = '#000000';
+		text_size = 10;
+		text_font = text_size + 'pt sans-serif';
+		update_color = 'magenta';
+		cursor_color = 'green';
+		color0 = 'red';
+		color1 = 'blue';
+		mouse_x = 0;
+		mouse_y = 0;
+		cursor_x = 0;
+	}
+	full_reset();
 
 	// Create second header
 	let header1 = document.createElement('div');
@@ -406,12 +454,12 @@ function create_graph_number(gambeziNode0, div, contents0) {
 	header1.appendChild(document.createTextNode(''));
 
 	// Create settings button
-	let settings = document.createElement('a');
-	settings.innerHTML = '&#9881;';
-	settings.style.float = 'right';
-	settings.style.cursor = 'pointer';
-	settings.style.marginRight = '4px';
-	settings.onclick = function(event) {
+	let settings0 = document.createElement('a');
+	settings0.innerHTML = '&#9881;';
+	settings0.style.float = 'right';
+	settings0.style.cursor = 'pointer';
+	settings0.style.marginRight = '4px';
+	settings0.onclick = function(event) {
 		// Remove old menu
 		let element = document.querySelector('.view_menu');
 		if(element != null && !element.contains(event.target)) {
@@ -429,6 +477,155 @@ function create_graph_number(gambeziNode0, div, contents0) {
 
 			//------------------------------------------------------------------------------
 			// Create buttons
+			let label = document.createElement('b');
+			label.innerHTML = 'Graph Settings';
+			menu.appendChild(label);
+
+			let button = document.createElement('a');
+			button.innerHTML = 'Reset Graph';
+			button.onclick = function(event) {
+				view.removeChild(menu);
+				reset();
+			};
+			menu.appendChild(document.createElement('br'));
+			menu.appendChild(button);
+
+			let checkbox0 = document.createElement('input');
+			checkbox0.type = 'checkbox';
+			checkbox0.checked = paused;
+			checkbox0.onclick = function(event) {
+				paused = checkbox0.checked; };
+			menu.appendChild(document.createElement('br'));
+			label = document.createElement('label');
+			label.appendChild(checkbox0);
+			label.appendChild(document.createTextNode('Paused'));
+			menu.appendChild(label);
+
+			let checkbox1 = document.createElement('input');
+			checkbox1.type = 'checkbox';
+			checkbox1.checked = autoscale;
+			checkbox1.onclick = function(event) {
+				autoscale = checkbox1.checked;
+			};
+			menu.appendChild(document.createElement('br'));
+			label = document.createElement('label');
+			label.appendChild(checkbox1);
+			label.appendChild(document.createTextNode('Autoscale'));
+			menu.appendChild(label);
+
+			let checkbox2 = document.createElement('input');
+			checkbox2.type = 'checkbox';
+			checkbox2.checked = scroll;
+			checkbox2.onclick = function(event) {
+				scroll = checkbox2.checked;
+			};
+			menu.appendChild(document.createElement('br'));
+			label = document.createElement('label');
+			label.appendChild(checkbox2);
+			label.appendChild(document.createTextNode('Scroll Graph'));
+			menu.appendChild(label);
+
+			let input0 = document.createElement('input');
+			input0.style.width = '100%';
+			input0.style.border = '0';
+			input0.style.height = '1.5em';
+			input0.value = min_y;
+			input0.onchange = function(event) {
+				min_y = parseFloat(input0.value);
+			};
+			menu.appendChild(document.createElement('br'));
+			menu.appendChild(document.createTextNode('Y minimum'));
+			menu.appendChild(document.createElement('br'));
+			menu.appendChild(input0);
+
+			let input1 = document.createElement('input');
+			input1.style.width = '100%';
+			input1.style.border = '0';
+			input1.style.height = '1.5em';
+			input1.value = max_y;
+			input1.onchange = function(event) {
+				max_y = parseFloat(input1.value);
+			};
+			menu.appendChild(document.createElement('br'));
+			menu.appendChild(document.createTextNode('Y maximum'));
+			menu.appendChild(document.createElement('br'));
+			menu.appendChild(input1);
+
+			let input2 = document.createElement('input');
+			input2.style.width = '100%';
+			input2.style.border = '0';
+			input2.style.height = '1.5em';
+			input2.value = buffer_length * refresh_rate / 1000;
+			input2.onchange = function(event) {
+				buffer_length = Math.round(parseFloat(input2.value) * 1000 / refresh_rate);
+				reset();
+			};
+			menu.appendChild(document.createElement('br'));
+			menu.appendChild(document.createTextNode('Window length (s)'));
+			menu.appendChild(document.createElement('br'));
+			menu.appendChild(input2);
+
+			let input3 = document.createElement('input');
+			input3.style.width = '100%';
+			input3.style.border = '0';
+			input3.style.height = '1.5em';
+			input3.value = div_y;
+			input3.onchange = function(event) {
+				div_y = Math.round(parseFloat(input3.value));
+			};
+			menu.appendChild(document.createElement('br'));
+			menu.appendChild(document.createTextNode('Y divisions'));
+			menu.appendChild(document.createElement('br'));
+			menu.appendChild(input3);
+
+			let input4 = document.createElement('input');
+			input4.style.width = '100%';
+			input4.style.border = '0';
+			input4.style.height = '1.5em';
+			input4.value = div_x;
+			input4.onchange = function(event) {
+				div_x = Math.round(parseFloat(input4.value));
+			};
+			menu.appendChild(document.createElement('br'));
+			menu.appendChild(document.createTextNode('X divisions'));
+			menu.appendChild(document.createElement('br'));
+			menu.appendChild(input4);
+
+			//------------------------------------------------------------------------------
+			// Add
+			view.appendChild(menu);
+		}
+	};
+	header1.appendChild(settings0);
+
+	// Create settings button
+	let settings1 = document.createElement('a');
+	settings1.innerHTML = '&#9881;';
+	settings1.style.float = 'right';
+	settings1.style.cursor = 'pointer';
+	settings1.style.marginRight = '4px';
+	settings1.onclick = function(event) {
+		// Remove old menu
+		let element = document.querySelector('.view_menu');
+		if(element != null && !element.contains(event.target)) {
+			view.removeChild(element);
+		}
+
+		// Create if necessary
+		if(document.querySelector('.view_menu') == null) {
+			//------------------------------------------------------------------------------
+			// Create context menu
+			let menu = document.createElement('div');
+			menu.classList.add('view_menu');
+			menu.style.left = event.clientX - view.offsetLeft;
+			menu.style.top = event.clientY - view.offsetTop;
+
+			//------------------------------------------------------------------------------
+			// Create buttons
+			let label = document.createElement('b');
+			label.innerHTML = 'Graph Settings';
+			menu.appendChild(label);
+
 			let button = document.createElement('a');
 			button.innerHTML = 'Select Node';
 			button.onclick = function(event) {
@@ -443,41 +640,74 @@ function create_graph_number(gambeziNode0, div, contents0) {
 					if(gambeziNode1 != null) {
 						subtitle = gambeziNode1.get_string_key().join('/');
 					}
-					header1.insertBefore(document.createTextNode(subtitle), settings);
+					header1.insertBefore(document.createTextNode(subtitle), settings1);
+					// Clear buffer
+					for(let i = 0;i < buffer_length;i++) {
+						buffer1[i] = NaN;
+					}
 				};
 			};
+			menu.appendChild(document.createElement('br'));
 			menu.appendChild(button);
 
-			let checkbox = document.createElement('input');
-			checkbox.type = 'checkbox';
-			checkbox.checked = paused;
-			checkbox.onclick = function(event) {
-				paused = checkbox.checked;
+			let input0 = document.createElement('input');
+			input0.style.width = '100%';
+			input0.style.border = '0';
+			input0.style.height = '1.5em';
+			input0.value = update_color;
+			input0.onchange = function(event) {
+				update_color = input0.value;
 			};
 			menu.appendChild(document.createElement('br'));
-			let label = document.createElement('label');
-			label.appendChild(checkbox);
-			label.appendChild(document.createTextNode('Paused'));
-			menu.appendChild(label);
+			menu.appendChild(document.createTextNode('Update color'));
+			menu.appendChild(document.createElement('br'));
+			menu.appendChild(input0);
 
-			checkbox = document.createElement('input');
-			checkbox.type = 'checkbox';
-			checkbox.checked = autoscale;
-			checkbox.onclick = function(event) {
-				autoscale = checkbox.checked;
+			let input1 = document.createElement('input');
+			input1.style.width = '100%';
+			input1.style.border = '0';
+			input1.style.height = '1.5em';
+			input1.value = cursor_color;
+			input1.onchange = function(event) {
+				cursor_color = input1.value;
 			};
 			menu.appendChild(document.createElement('br'));
-			label = document.createElement('label');
-			label.appendChild(checkbox);
-			label.appendChild(document.createTextNode('Autoscale'));
-			menu.appendChild(label);
+			menu.appendChild(document.createTextNode('Cursor color'));
+			menu.appendChild(document.createElement('br'));
+			menu.appendChild(input1);
+
+			let input2 = document.createElement('input');
+			input2.style.width = '100%';
+			input2.style.border = '0';
+			input2.style.height = '1.5em';
+			input2.value = color0;
+			input2.onchange = function(event) {
+				color0 = input2.value;
+			};
+			menu.appendChild(document.createElement('br'));
+			menu.appendChild(document.createTextNode('Primary color'));
+			menu.appendChild(document.createElement('br'));
+			menu.appendChild(input2);
+
+			let input3 = document.createElement('input');
+			input3.style.width = '100%';
+			input3.style.border = '0';
+			input3.style.height = '1.5em';
+			input3.value = color1;
+			input3.onchange = function(event) {
+				color1 = input3.value;
+			};
+			menu.appendChild(document.createElement('br'));
+			menu.appendChild(document.createTextNode('Secondary color'));
+			menu.appendChild(document.createElement('br'));
+			menu.appendChild(input3);
 
 			//------------------------------------------------------------------------------
 			// Add
 			view.appendChild(menu);
 		}
 	};
-	header1.appendChild(settings);
+	header1.appendChild(settings1);
 
 	// Create content area
 	let contents1 = document.createElement('div');
@@ -490,25 +720,154 @@ function create_graph_number(gambeziNode0, div, contents0) {
 	contents0.appendChild(contents1);
 
 	let canvas = document.createElement('canvas');
+	canvas.onmousemove = function(event) {
+		// Transform coordinates to canvas
+		mouse_x = event.layerX - canvas.offsetLeft;
+		mouse_y = event.layerY - canvas.offsetTop;
+	};
 	let ctx = canvas.getContext('2d');
 	gambeziNode0.set_subscription(1);
 	div.style.backgroundColor = '#DFDFFF';
 	let ident = setInterval(function() {
 		// Draw background
-		let width = div.clientWidth;
-		let height = div.clientHeight - div.firstChild.clientHeight;
+		let width = contents1.clientWidth;
+		let height = div.clientHeight - div.firstChild.clientHeight - header1.clientHeight;
 		canvas.width = width;
 		canvas.height = height;
-		ctx.fillStyle = '#FFFFFF';
+		ctx.fillStyle = background_color;
 		ctx.fillRect(0, 0, width, height);
 
-		// Draw other stuff if not paused
+		// Get new data
 		if(!paused) {
-			// Get new data
 			buffer0[index] = gambeziNode0.get_double();
+			if(gambeziNode1 != null) {
+				buffer1[index] = gambeziNode1.get_double();
+			}
+			index++;
+			if(index >= buffer_length) {
+				index -= buffer_length;
+				offset += buffer_length;
+			}
+		}
+		buffer0[index] = NaN;
+		buffer1[index] = NaN;
+
+		// Autoscale y axis
+		if(autoscale) {
+			max_y = -Infinity;
+			min_y = Infinity;
+			for(let i = 0;i < buffer_length;i++) {
+				if(buffer0[i] > max_y) {
+					max_y = buffer0[i];
+				}
+				if(buffer0[i] < min_y) {
+					min_y = buffer0[i];
+				}
+				if(buffer1[i] > max_y) {
+					max_y = buffer1[i];
+				}
+				if(buffer1[i] < min_y) {
+					min_y = buffer1[i];
+				}
+			}
 		}
 
+		// Create drawing parameters
+		if(min_y > max_y) {
+			let temp = min_y;
+			min_y = max_y;
+			max_y = temp;
+		}
+		if(min_y == max_y) {
+			min_y -= 0.02;
+			max_y += 0.02;
+		}
+		if(min_y == -Infinity && max_y == Infinity) {
+			min_y = -0.02;
+			max_y = 0.02;
+		}
+		let graph_width = width - margin_left - margin_right;
+		let graph_height = height - margin_top - margin_bottom;
+		if(graph_width > 0 && graph_height > 0) {
+			let x_interval = graph_width/buffer_length;
+			let y_interval = graph_height/(max_y - min_y);
 
+			// Draw grid
+			ctx.strokeStyle = grid_color;
+			ctx.beginPath();
+			for(let i = 0;i <= div_x;i++) {
+				ctx.moveTo(margin_left + i * graph_width / div_x, margin_top);
+				ctx.lineTo(margin_left + i * graph_width / div_x, height - margin_bottom);
+			}
+			for(let i = 0;i <= div_y;i++) {
+				ctx.moveTo(margin_left, margin_top + i * graph_height / div_y);
+				ctx.lineTo(width - margin_right, margin_top + i * graph_height / div_y);
+			}
+			ctx.stroke();
+
+			// Draw data
+			ctx.strokeStyle = color0;
+			ctx.beginPath();
+			for(let i = 1;i < buffer_length;i++) {
+				let y0 = height - margin_bottom - (buffer0[i-1] - min_y) * y_interval;
+				let y1 = height - margin_bottom - (buffer0[i] - min_y) * y_interval;
+				if(!isNaN(y0) && y0 >= margin_top && y0 <= height - margin_bottom &&
+				   !isNaN(y1) && y1 >= margin_top && y1 <= height - margin_bottom) {
+					ctx.moveTo(margin_left + (i-1) * x_interval, y0);
+					ctx.lineTo(margin_left + i * x_interval, y1);
+				}
+			}
+			ctx.stroke();
+			ctx.strokeStyle = color1;
+			ctx.beginPath();
+			for(let i = 1;i < buffer_length;i++) {
+				let y0 = height - margin_bottom - (buffer1[i-1] - min_y) * y_interval;
+				let y1 = height - margin_bottom - (buffer1[i] - min_y) * y_interval;
+				if(!isNaN(y0) && y0 >= margin_top && y0 <= height - margin_bottom &&
+				   !isNaN(y1) && y1 >= margin_top && y1 <= height - margin_bottom) {
+					ctx.moveTo(margin_left + (i-1) * x_interval, y0);
+					ctx.lineTo(margin_left + i * x_interval, y1);
+				}
+			}
+			ctx.stroke();
+
+			// Draw update
+			ctx.strokeStyle = update_color;
+			ctx.beginPath();
+			ctx.moveTo(margin_left + index * x_interval, margin_top);
+			ctx.lineTo(margin_left + index * x_interval, height - margin_bottom);
+			ctx.stroke();
+
+			// Draw cursor
+			cursor_x = (mouse_x - margin_left) / x_interval;
+			if(cursor_x < 0) {
+				cursor_x = 0;
+			}
+			if(cursor_x > buffer_length-1) {
+				cursor_x = buffer_length-1;
+			}
+			ctx.strokeStyle = cursor_color;
+			ctx.beginPath();
+			ctx.moveTo(margin_left + cursor_x * x_interval, margin_top);
+			ctx.lineTo(margin_left + cursor_x * x_interval, height - margin_bottom);
+			ctx.stroke();
+
+			// Draw horizontal labels
+			ctx.fillStyle = text_color;
+			ctx.font = text_font;
+			for(let i = 0;i <= div_x;i++) {
+				ctx.fillText(roundSigFigs((i * buffer_length / div_x + offset) * refresh_rate / 1000, 3) + 's',
+				             margin_left + i * graph_width / div_x,
+				             height - margin_bottom + text_size + 2);
+			}
+
+			// Draw vertical labels
+			ctx.fillStyle = text_color;
+			for(let i = 0;i <= div_y;i++) {
+				ctx.fillText(roundSigFigs(max_y - i * (max_y - min_y) / div_y, 3),
+				             2, margin_top + i * graph_height / div_y);
+			}
+		}
 	}, refresh_rate);
 	contents1.appendChild(canvas);
 	div.setAttribute('data_type', 'graph_number');
@@ -524,7 +883,7 @@ document.onclick = function(event) {
 	let is_child_view_node = false;
 	let target = event.target;
 	while(target != null) {
-		if(target.classList.contains('view_node')) {
+		if(typeof(target.classList) != 'undefined' && target.classList.contains('view_node')) {
 			is_child_view_node = true;
 		}
 		target = target.parentElement;
@@ -610,3 +969,35 @@ function dragMoveListener (event) {
 }
 window.dragMoveListener = dragMoveListener;
 
+////////////////////////////////////////////////////////////////////////////////
+// Utility functions
+function roundSigFigs(value, sigFigs) {
+	// Escape if the value is invalid
+	if(value == 0 || isNaN(value) || value == Infinity || value == -Infinity) {
+		return value;
+	}
+
+	// Escape if the sig figs is invalid
+	if(sigFigs < 1) {
+		return value;
+	}
+
+	// Find order of magnitude
+	let magnitude = 1;
+	while(Math.abs(value) > 10) {
+		value /= 10;
+		magnitude *= 10;
+	}
+	while(Math.abs(value) < 1) {
+		value *= 10;
+		magnitude /= 10;
+	}
+
+	// Round to number of places
+	let rounding = Math.pow(10, sigFigs-1);
+	value = Math.round(value * rounding) / rounding;
+
+	// Return back to initial magnitude
+	value *= magnitude;
+	return value;
+}
