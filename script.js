@@ -977,19 +977,20 @@ interact('#tree')
 ////////////////////////////////////////////////////////////////////////////////
 // Create draggable interface
 var grid_size = 25;
-interact('.view_node')
+interact('.view_node > div:first-child')
 .draggable({
 	snap: {
 		range: Infinity,
 		relativePoints: [ { x: 0, y: 0 } ]
 	},
 	restrict: {
-		restriction: "parent",
+		restriction: '#view',
 		elementRect: { top: 0, left: 0, bottom: 1, right: 1 }
 	},
 
 	onmove: dragMoveListener,
-})
+});
+interact('.view_node')
 .resizable({
 	edges: { left: false, right: true, bottom: true, top: false },
 
@@ -1010,7 +1011,7 @@ interact('.view_node')
 	target.style.height = Math.round(event.rect.height / grid_size) * grid_size + 'px';
 });
 function dragMoveListener (event) {
-	var target = event.target;
+	var target = event.target.parentElement;
 	var x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
 	var y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
 
