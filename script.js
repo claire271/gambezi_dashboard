@@ -892,7 +892,7 @@ function create_graph_number(gambeziNode0, div, contents0) {
 			// Draw cursor text
 			ctx.font = text_font;
 			ctx.fillStyle = cursor_color;
-			ctx.fillText(((cursor_x + offset + (cursor_x <= cursor_x ? buffer_length : 0)) * refresh_rate / 1000).toPrecision(4) + 's',
+			ctx.fillText(((cursor_x + offset + (cursor_x <= last_index ? buffer_length : 0)) * refresh_rate / 1000).toPrecision(4) + 's',
 				         margin_left + cursor_x * x_interval + 2,
 				         margin_top - 2);
 			ctx.font = text_font;
