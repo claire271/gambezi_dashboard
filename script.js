@@ -384,9 +384,9 @@ function create_button(gambeziNode, div, contents) {
 function create_graph_number(gambeziNode0, div, contents0) {
 	// Parameters
 	let margin_top = 16;
-	let margin_left = 48;
+	let margin_left = 50;
 	let margin_bottom = 16;
-	let margin_right = 40;
+	let margin_right = 50;
 
 	// Variables
 	let gambeziNode1 = null;
@@ -424,7 +424,7 @@ function create_graph_number(gambeziNode0, div, contents0) {
 			buffer0[i] = NaN;
 			buffer1[i] = NaN;
 		}
-		offset = 0;
+		offset = -buffer_length * 2;
 		index = 0;
 	}
 	function full_reset() {
@@ -746,11 +746,44 @@ function create_graph_number(gambeziNode0, div, contents0) {
 			index++;
 			if(index >= buffer_length) {
 				index -= buffer_length;
+			}
+			if(index == 1) {
 				offset += buffer_length;
 			}
 		}
 		buffer0[index] = NaN;
 		buffer1[index] = NaN;
+		let last_index = index-1;
+		if(last_index < 0) {
+			last_index += buffer_length;
+		}
+
+		// Handle scrolling graph
+		if(scroll) {
+			// Shift until correct
+			while(index != 1) {
+				let temp0 = buffer0[0];
+				for(let i = 1;i < buffer_length;i++) {
+					buffer0[i-1] = buffer0[i];
+				}
+				buffer0[buffer_length-1] = temp0;
+				let temp1 = buffer1[0];
+				for(let i = 1;i < buffer_length;i++) {
+					buffer1[i-1] = buffer1[i];
+				}
+				buffer1[buffer_length-1] = temp1;
+
+				index--;
+				if(index < 0) {
+					index += buffer_length;
+				}
+				last_index--;
+				if(last_index < 0) {
+					last_index += buffer_length;
+				}
+				offset++;
+			}
+		}
 
 		// Autoscale y axis
 		if(autoscale) {
@@ -808,43 +841,49 @@ function create_graph_number(gambeziNode0, div, contents0) {
 			// Draw data
 			ctx.strokeStyle = color0;
 			ctx.beginPath();
-			for(let i = 1;i < buffer_length;i++) {
-				let y0 = height - margin_bottom - (buffer0[i-1] - min_y) * y_interval;
-				let y1 = height - margin_bottom - (buffer0[i] - min_y) * y_interval;
+			for(let i = 0;i < buffer_length;i++) {
+				let y0 = height - margin_bottom - (buffer0[i] - min_y) * y_interval;
+				let y1 = height - margin_bottom - (buffer0[(i+1)%buffer_length] - min_y) * y_interval;
 				if(!isNaN(y0) && y0 >= margin_top && y0 <= height - margin_bottom &&
 				   !isNaN(y1) && y1 >= margin_top && y1 <= height - margin_bottom) {
-					ctx.moveTo(margin_left + (i-1) * x_interval, y0);
-					ctx.lineTo(margin_left + i * x_interval, y1);
+					ctx.moveTo(margin_left + i * x_interval, y0);
+					ctx.lineTo(margin_left + (i+1) * x_interval, y1);
 				}
 			}
 			ctx.stroke();
 			ctx.strokeStyle = color1;
 			ctx.beginPath();
 			for(let i = 1;i < buffer_length;i++) {
-				let y0 = height - margin_bottom - (buffer1[i-1] - min_y) * y_interval;
-				let y1 = height - margin_bottom - (buffer1[i] - min_y) * y_interval;
+				let y0 = height - margin_bottom - (buffer1[i] - min_y) * y_interval;
+				let y1 = height - margin_bottom - (buffer1[(i+1)%buffer_length] - min_y) * y_interval;
 				if(!isNaN(y0) && y0 >= margin_top && y0 <= height - margin_bottom &&
 				   !isNaN(y1) && y1 >= margin_top && y1 <= height - margin_bottom) {
-					ctx.moveTo(margin_left + (i-1) * x_interval, y0);
-					ctx.lineTo(margin_left + i * x_interval, y1);
+					ctx.moveTo(margin_left + i * x_interval, y0);
+					ctx.lineTo(margin_left + (i+1) * x_interval, y1);
 				}
 			}
 			ctx.stroke();
 
 			// Draw update
-			ctx.strokeStyle = update_color;
-			ctx.beginPath();
-			ctx.moveTo(margin_left + index * x_interval, margin_top);
-			ctx.lineTo(margin_left + index * x_interval, height - margin_bottom);
-			ctx.stroke();
+			if(!isNaN(buffer0[last_index]) || !isNaN(buffer1[last_index])) {
+				let draw_index = last_index;
+				if(draw_index == 0) {
+					draw_index += buffer_length;
+				}
+				ctx.strokeStyle = update_color;
+				ctx.beginPath();
+				ctx.moveTo(margin_left + draw_index* x_interval, margin_top);
+				ctx.lineTo(margin_left + draw_index * x_interval, height - margin_bottom);
+				ctx.stroke();
+			}
 
 			// Draw cursor
-			cursor_x = (mouse_x - margin_left) / x_interval;
+			cursor_x = Math.round((mouse_x - margin_left) / x_interval);
 			if(cursor_x < 0) {
 				cursor_x = 0;
 			}
-			if(cursor_x > buffer_length-1) {
-				cursor_x = buffer_length-1;
+			if(cursor_x > buffer_length) {
+				cursor_x = buffer_length;
 			}
 			ctx.strokeStyle = cursor_color;
 			ctx.beginPath();
@@ -856,7 +895,8 @@ function create_graph_number(gambeziNode0, div, contents0) {
 			ctx.fillStyle = text_color;
 			ctx.font = text_font;
 			for(let i = 0;i <= div_x;i++) {
-				ctx.fillText(((i * buffer_length / div_x + offset) * refresh_rate / 1000).toPrecision(3) + 's',
+				let label_index = i * buffer_length / div_x;
+				ctx.fillText(((label_index + offset + (label_index <= last_index ? buffer_length : 0) + (scroll ? 0 : -buffer_length)) * refresh_rate / 1000).toPrecision(4) + 's',
 				             margin_left + i * graph_width / div_x,
 				             height - margin_bottom + text_size + 2);
 			}
@@ -864,7 +904,7 @@ function create_graph_number(gambeziNode0, div, contents0) {
 			// Draw vertical labels
 			ctx.fillStyle = text_color;
 			for(let i = 0;i <= div_y;i++) {
-				ctx.fillText((max_y - i * (max_y - min_y) / div_y).toPrecision(3) + '',
+				ctx.fillText((max_y - i * (max_y - min_y) / div_y).toPrecision(4) + '',
 				             2, margin_top + i * graph_height / div_y);
 			}
 		}
