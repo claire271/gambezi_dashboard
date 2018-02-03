@@ -751,8 +751,6 @@ function create_graph_number(gambeziNode0, div, contents0) {
 				offset += buffer_length;
 			}
 		}
-		buffer0[index] = NaN;
-		buffer1[index] = NaN;
 		let last_index = index-1;
 		if(last_index < 0) {
 			last_index += buffer_length;
@@ -843,7 +841,8 @@ function create_graph_number(gambeziNode0, div, contents0) {
 				let y0 = height - margin_bottom - (buffer0[i] - min_y) * y_interval;
 				let y1 = height - margin_bottom - (buffer0[(i+1)%buffer_length] - min_y) * y_interval;
 				if(!isNaN(y0) && y0 >= margin_top && y0 <= height - margin_bottom &&
-				   !isNaN(y1) && y1 >= margin_top && y1 <= height - margin_bottom) {
+				   !isNaN(y1) && y1 >= margin_top && y1 <= height - margin_bottom &&
+				   i != last_index) {
 					ctx.moveTo(margin_left + i * x_interval, y0);
 					ctx.lineTo(margin_left + (i+1) * x_interval, y1);
 				}
@@ -855,7 +854,8 @@ function create_graph_number(gambeziNode0, div, contents0) {
 				let y0 = height - margin_bottom - (buffer1[i] - min_y) * y_interval;
 				let y1 = height - margin_bottom - (buffer1[(i+1)%buffer_length] - min_y) * y_interval;
 				if(!isNaN(y0) && y0 >= margin_top && y0 <= height - margin_bottom &&
-				   !isNaN(y1) && y1 >= margin_top && y1 <= height - margin_bottom) {
+				   !isNaN(y1) && y1 >= margin_top && y1 <= height - margin_bottom &&
+				   i != last_index) {
 					ctx.moveTo(margin_left + i * x_interval, y0);
 					ctx.lineTo(margin_left + (i+1) * x_interval, y1);
 				}
