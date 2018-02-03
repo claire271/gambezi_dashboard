@@ -61,155 +61,7 @@ function DataNode(gambeziNode, parentDiv) {
 	// Add handler
 	add.onclick = function(event) {
 		if(tree_button_state == 'add') {
-			// Create div
-			let div = document.createElement('div');
-			div.classList.add('view_node');
-			div.style.width = grid_size * 6 + 'px';
-			div.style.height = grid_size * 2 + 'px';
-
-			// Create header
-			let header = document.createElement('div');
-			let settings = document.createElement('a');
-			settings.innerHTML = '&#9881;';
-			settings.onclick = function(event) {
-				// Remove old menu
-				let element = document.querySelector('.view_menu');
-				if(element != null && !element.contains(event.target)) {
-					view.removeChild(element);
-				}
-
-				// Create if necessary
-				if(document.querySelector('.view_menu') == null) {
-					//------------------------------------------------------------------------------
-					// Create context menu
-					let menu = document.createElement('div');
-					menu.classList.add('view_menu');
-					menu.style.left = event.clientX - view.offsetLeft;
-					menu.style.top = event.clientY - view.offsetTop;
-
-					//------------------------------------------------------------------------------
-					// Create buttons
-					let data_type = div.getAttribute('data_type');
-					let type_label = document.createElement('b');
-					type_label.innerHTML = data_type;
-					menu.appendChild(type_label);
-
-					let button = document.createElement('a');
-					button.innerHTML = 'Remove';
-					button.onclick = function(event) {
-						view.removeChild(menu);
-						contents = clear_contents(gambeziNode, div, contents);
-						view.removeChild(div);
-					};
-					menu.appendChild(document.createElement('br'));
-					menu.appendChild(button);
-
-					button = document.createElement('a');
-					button.innerHTML = 'Input Number';
-					button.onclick = function(event) {
-						view.removeChild(menu);
-						contents = clear_contents(gambeziNode, div, contents);
-						create_input_number(gambeziNode, div, contents);
-					};
-					menu.appendChild(document.createElement('br'));
-					menu.appendChild(button);
-
-					button = document.createElement('a');
-					button.innerHTML = 'Output Number';
-					button.onclick = function(event) {
-						view.removeChild(menu);
-						contents = clear_contents(gambeziNode, div, contents);
-						create_output_number(gambeziNode, div, contents);
-					};
-					menu.appendChild(document.createElement('br'));
-					menu.appendChild(button);
-
-					button = document.createElement('a');
-					button.innerHTML = 'Input Boolean';
-					button.onclick = function(event) {
-						view.removeChild(menu);
-						contents = clear_contents(gambeziNode, div, contents);
-						create_input_boolean(gambeziNode, div, contents);
-					};
-					menu.appendChild(document.createElement('br'));
-					menu.appendChild(button);
-
-					button = document.createElement('a');
-					button.innerHTML = 'Output Boolean';
-					button.onclick = function(event) {
-						view.removeChild(menu);
-						contents = clear_contents(gambeziNode, div, contents);
-						create_output_boolean(gambeziNode, div, contents);
-					};
-					menu.appendChild(document.createElement('br'));
-					menu.appendChild(button);
-
-					button = document.createElement('a');
-					button.innerHTML = 'Input String';
-					button.onclick = function(event) {
-						view.removeChild(menu);
-						contents = clear_contents(gambeziNode, div, contents);
-						create_input_string(gambeziNode, div, contents);
-					};
-					menu.appendChild(document.createElement('br'));
-					menu.appendChild(button);
-
-					button = document.createElement('a');
-					button.innerHTML = 'Output String';
-					button.onclick = function(event) {
-						view.removeChild(menu);
-						contents = clear_contents(gambeziNode, div, contents);
-						create_output_string(gambeziNode, div, contents);
-					};
-					menu.appendChild(document.createElement('br'));
-					menu.appendChild(button);
-
-					button = document.createElement('a');
-					button.innerHTML = 'Log String';
-					button.onclick = function(event) {
-						view.removeChild(menu);
-						contents = clear_contents(gambeziNode, div, contents);
-						create_log_string(gambeziNode, div, contents);
-					};
-					menu.appendChild(document.createElement('br'));
-					menu.appendChild(button);
-
-					button = document.createElement('a');
-					button.innerHTML = 'Button';
-					button.onclick = function(event) {
-						view.removeChild(menu);
-						contents = clear_contents(gambeziNode, div, contents);
-						create_button(gambeziNode, div, contents);
-					};
-					menu.appendChild(document.createElement('br'));
-					menu.appendChild(button);
-
-					button = document.createElement('a');
-					button.innerHTML = 'Graph Number';
-					button.onclick = function(event) {
-						view.removeChild(menu);
-						contents = clear_contents(gambeziNode, div, contents);
-						create_graph_number(gambeziNode, div, contents);
-					};
-					menu.appendChild(document.createElement('br'));
-					menu.appendChild(button);
-
-					//------------------------------------------------------------------------------
-					// Add
-					view.appendChild(menu);
-				}
-			};
-			header.appendChild(document.createTextNode(gambeziNode.get_string_key().join('/')));
-			header.appendChild(settings);
-			
-			// Create contents
-			let contents = document.createElement('div');
-			create_output_number(gambeziNode, div, contents);
-
-			// Add 
-			div.appendChild(header);
-			div.appendChild(contents);
-			view.appendChild(div);
+			create_view(gambeziNode);
 		}
 		else if(tree_button_state == 'graph') {
 			// Update graph element
@@ -250,6 +102,165 @@ DataNode.prototype.buildTree = function() {
 	for(let child of this.children) {
 		child.buildTree();
 	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Method to create view
+function create_view(gambeziNode) {
+	// Create div
+	let div = document.createElement('div');
+	div.classList.add('view_node');
+	div.style.width = grid_size * 6 + 'px';
+	div.style.height = grid_size * 2 + 'px';
+	div.style.left = Math.round(0 / grid_size) * grid_size + 'px';
+	div.style.top  = Math.round(0 / grid_size) * grid_size + 'px';
+	div.setAttribute('data-x', 0);
+	div.setAttribute('data-y', 0);
+
+	// Create header
+	let header = document.createElement('div');
+	let settings = document.createElement('a');
+	settings.innerHTML = '&#9881;';
+	settings.onclick = function(event) {
+		// Remove old menu
+		let element = document.querySelector('.view_menu');
+		if(element != null && !element.contains(event.target)) {
+			view.removeChild(element);
+		}
+
+		// Create if necessary
+		if(document.querySelector('.view_menu') == null) {
+			//------------------------------------------------------------------------------
+			// Create context menu
+			let menu = document.createElement('div');
+			menu.classList.add('view_menu');
+			menu.style.left = event.clientX - view.offsetLeft;
+			menu.style.top = event.clientY - view.offsetTop;
+
+			//------------------------------------------------------------------------------
+			// Create buttons
+			let data_type = div.getAttribute('data_type');
+			let type_label = document.createElement('b');
+			type_label.innerHTML = data_type;
+			menu.appendChild(type_label);
+
+			let button = document.createElement('a');
+			button.innerHTML = 'Remove';
+			button.onclick = function(event) {
+				view.removeChild(menu);
+				contents = clear_contents(gambeziNode, div, contents);
+				view.removeChild(div);
+			};
+			menu.appendChild(document.createElement('br'));
+			menu.appendChild(button);
+
+			button = document.createElement('a');
+			button.innerHTML = 'Input Number';
+			button.onclick = function(event) {
+				view.removeChild(menu);
+				contents = clear_contents(gambeziNode, div, contents);
+				create_input_number(gambeziNode, div, contents);
+			};
+			menu.appendChild(document.createElement('br'));
+			menu.appendChild(button);
+
+			button = document.createElement('a');
+			button.innerHTML = 'Output Number';
+			button.onclick = function(event) {
+				view.removeChild(menu);
+				contents = clear_contents(gambeziNode, div, contents);
+				create_output_number(gambeziNode, div, contents);
+			};
+			menu.appendChild(document.createElement('br'));
+			menu.appendChild(button);
+
+			button = document.createElement('a');
+			button.innerHTML = 'Input Boolean';
+			button.onclick = function(event) {
+				view.removeChild(menu);
+				contents = clear_contents(gambeziNode, div, contents);
+				create_input_boolean(gambeziNode, div, contents);
+			};
+			menu.appendChild(document.createElement('br'));
+			menu.appendChild(button);
+
+			button = document.createElement('a');
+			button.innerHTML = 'Output Boolean';
+			button.onclick = function(event) {
+				view.removeChild(menu);
+				contents = clear_contents(gambeziNode, div, contents);
+				create_output_boolean(gambeziNode, div, contents);
+			};
+			menu.appendChild(document.createElement('br'));
+			menu.appendChild(button);
+
+			button = document.createElement('a');
+			button.innerHTML = 'Input String';
+			button.onclick = function(event) {
+				view.removeChild(menu);
+				contents = clear_contents(gambeziNode, div, contents);
+				create_input_string(gambeziNode, div, contents);
+			};
+			menu.appendChild(document.createElement('br'));
+			menu.appendChild(button);
+
+			button = document.createElement('a');
+			button.innerHTML = 'Output String';
+			button.onclick = function(event) {
+				view.removeChild(menu);
+				contents = clear_contents(gambeziNode, div, contents);
+				create_output_string(gambeziNode, div, contents);
+			};
+			menu.appendChild(document.createElement('br'));
+			menu.appendChild(button);
+
+			button = document.createElement('a');
+			button.innerHTML = 'Log String';
+			button.onclick = function(event) {
+				view.removeChild(menu);
+				contents = clear_contents(gambeziNode, div, contents);
+				create_log_string(gambeziNode, div, contents);
+			};
+			menu.appendChild(document.createElement('br'));
+			menu.appendChild(button);
+
+			button = document.createElement('a');
+			button.innerHTML = 'Button';
+			button.onclick = function(event) {
+				view.removeChild(menu);
+				contents = clear_contents(gambeziNode, div, contents);
+				create_button(gambeziNode, div, contents);
+			};
+			menu.appendChild(document.createElement('br'));
+			menu.appendChild(button);
+
+			button = document.createElement('a');
+			button.innerHTML = 'Graph Number';
+			button.onclick = function(event) {
+				view.removeChild(menu);
+				contents = clear_contents(gambeziNode, div, contents);
+				create_graph_number(gambeziNode, div, contents);
+			};
+			menu.appendChild(document.createElement('br'));
+			menu.appendChild(button);
+
+			//------------------------------------------------------------------------------
+			// Add
+			view.appendChild(menu);
+		}
+	};
+	header.appendChild(document.createTextNode(gambeziNode.get_string_key().join('/')));
+	header.appendChild(settings);
+	
+	// Create contents
+	let contents = document.createElement('div');
+	create_output_number(gambeziNode, div, contents);
+
+	// Add 
+	div.appendChild(header);
+	div.appendChild(contents);
+	view.appendChild(div);
+	return div;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -414,6 +425,8 @@ function create_graph_number(gambeziNode0, div, contents0) {
 	let mouse_x = null;
 	let mouse_y = null;
 	let cursor_x = null;
+
+	// Reset method
 	function reset() {
 		if(buffer_length < 2) {
 			buffer_length = 2;
@@ -709,6 +722,70 @@ function create_graph_number(gambeziNode0, div, contents0) {
 	};
 	header1.appendChild(settings1);
 
+	// Save method
+	div.get_graph_parameters = function() {
+		let output = '';
+		output += margin_top + '\n';
+		output += margin_left + '\n';
+		output += margin_bottom + '\n';
+		output += margin_right + '\n';
+		if(gambeziNode1 != null) {
+			output += gambeziNode1.get_string_key().join('/') + '\n';
+		}
+		else {
+			output += '\n';
+		}
+		output += autoscale + '\n';
+		output += scroll + '\n';
+		output += buffer_length + '\n';
+		output += min_y + '\n';
+		output += max_y + '\n';
+		output += div_y + '\n';
+		output += div_x + '\n';
+		output += background_color + '\n';
+		output += grid_color + '\n';
+		output += text_color + '\n';
+		output += text_size + '\n';
+		output += text_font + '\n';
+		output += update_color + '\n';
+		output += cursor_color + '\n';
+		output += color0 + '\n';
+		output += color1 + '\n';
+		return output;
+	};
+
+	// Open method
+	div.set_graph_parameters = function(parameters) {
+		let i = 0;
+		margin_top = Number(parameters[i++]);
+		margin_left = Number(parameters[i++]);
+		margin_bottom = Number(parameters[i++]);
+		margin_right = Number(parameters[i++]);
+		let name1 = String(parameters[i++]);
+		if(name1 != '') {
+			gambeziNode1 = gambezi.get_node(name1);
+			header1.removeChild(header1.firstChild);
+			header1.insertBefore(document.createTextNode(gambeziNode1.get_string_key().join('/')), settings1);
+		}
+		autoscale = (parameters[i++]) == 'true';
+		scroll = (parameters[i++]) == 'true';
+		buffer_length = Number(parameters[i++]);
+		min_y = Number(parameters[i++]);
+		max_y = Number(parameters[i++]);
+		div_y = Number(parameters[i++]);
+		div_x = Number(parameters[i++]);
+		background_color = String(parameters[i++]);
+		grid_color = String(parameters[i++]);
+		text_color = String(parameters[i++]);
+		text_size = Number(parameters[i++]);
+		text_font = String(parameters[i++]);
+		update_color = String(parameters[i++]);
+		cursor_color = String(parameters[i++]);
+		color0 = String(parameters[i++]);
+		color1 = String(parameters[i++]);
+		reset();
+	};
+
 	// Create content area
 	let contents1 = document.createElement('div');
 	contents1.style.flex = '1 1 auto';
@@ -719,6 +796,7 @@ function create_graph_number(gambeziNode0, div, contents0) {
 	contents0.appendChild(header1);
 	contents0.appendChild(contents1);
 
+	// Canvas setup
 	let canvas = document.createElement('canvas');
 	canvas.onmousemove = function(event) {
 		// Transform coordinates to canvas
@@ -1024,3 +1102,65 @@ function dragMoveListener (event) {
 	target.setAttribute('data-y', y);
 }
 window.dragMoveListener = dragMoveListener;
+
+////////////////////////////////////////////////////////////////////////////////
+// Saving and restoring
+function saveLayout() {
+	let output = '';
+	let divs = document.querySelector('#view').children;
+	for(let i = 0;i < divs.length;i++) {
+		let div = divs[i];
+
+		output += div.children[0].firstChild.textContent + '\n';
+		output += div.style.left + '\n';
+		output += div.style.top + '\n';
+		output += div.style.width + '\n';
+		output += div.style.height + '\n';
+		output += div.getAttribute('data_type') + '\n';
+		if(div.getAttribute('data_type') == 'graph_number') {
+			output += div.get_graph_parameters();
+		}
+		output += '========================================\n';
+	}
+	return output;
+}
+function openLayout(data) {
+	// Remove old elements
+	let divs = document.querySelector('#view').children;
+	for(let i = divs.length-1;i >= 0;i--) {
+		let div = divs[i];
+		clearTimeout(div.getAttribute('timer_ident'));
+		view.removeChild(div);
+	}
+
+	// Add elements
+	let sections = data.split('========================================\n');
+	for(let i = 0;i < sections.length;i++) {
+		let parts = sections[i].split('\n');
+		if(parts.length >= 7) {
+			let gambeziNode = gambezi.get_node(parts[0]);
+			let div = create_view(gambeziNode);
+			div.style.left = parts[1];
+			div.setAttribute('data-x', parts[1]);
+			div.style.top = parts[2];
+			div.setAttribute('data-y', parts[2]);
+			div.style.width = parts[3];
+			div.style.height = parts[4];
+			div.children[1] = clear_contents(gambeziNode, div, div.children[1]);
+			switch(parts[5]) {
+				case 'input_number':   create_input_number(gambeziNode, div, div.children[1]);   break;
+				case 'output_number':  create_output_number(gambeziNode, div, div.children[1]);  break;
+				case 'input_boolean':  create_input_boolean(gambeziNode, div, div.children[1]);  break;
+				case 'output_boolean': create_output_boolean(gambeziNode, div, div.children[1]); break;
+				case 'input_string':   create_input_string(gambeziNode, div, div.children[1]);   break;
+				case 'output_string':  create_output_string(gambeziNode, div, div.children[1]);  break;
+				case 'log_string':     create_log_string(gambeziNode, div, div.children[1]);     break;
+				case 'button':         create_button(gambeziNode, div, div.children[1]);         break;
+				case 'graph_number':   create_graph_number(gambeziNode, div, div.children[1]);   break;
+			}
+			if(parts[5] == 'graph_number') {
+				div.set_graph_parameters(parts.slice(6));
+			}
+		}
+	}
+}
