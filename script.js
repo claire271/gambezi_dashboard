@@ -383,9 +383,9 @@ function create_button(gambeziNode, div, contents) {
 
 function create_graph_number(gambeziNode0, div, contents0) {
 	// Parameters
-	let margin_top = 16;
+	let margin_top = 20;
 	let margin_left = 50;
-	let margin_bottom = 16;
+	let margin_bottom = 20;
 	let margin_right = 50;
 
 	// Variables
@@ -890,13 +890,18 @@ function create_graph_number(gambeziNode0, div, contents0) {
 			ctx.moveTo(margin_left + cursor_x * x_interval, margin_top);
 			ctx.lineTo(margin_left + cursor_x * x_interval, height - margin_bottom);
 			ctx.stroke();
+			ctx.font = text_font;
+			ctx.fillStyle = cursor_color;
+			ctx.fillText(((cursor_x + offset + (cursor_x <= last_index ? buffer_length : 0)) * refresh_rate / 1000).toPrecision(4) + 's',
+				         margin_left + cursor_x * x_interval,
+				         margin_top - 2);
 
 			// Draw horizontal labels
 			ctx.fillStyle = text_color;
 			ctx.font = text_font;
 			for(let i = 0;i <= div_x;i++) {
 				let label_index = i * buffer_length / div_x;
-				ctx.fillText(((label_index + offset + (label_index <= last_index ? buffer_length : 0) + (scroll ? 0 : -buffer_length)) * refresh_rate / 1000).toPrecision(4) + 's',
+				ctx.fillText(((label_index + offset + (label_index <= last_index ? buffer_length : 0)) * refresh_rate / 1000).toPrecision(4) + 's',
 				             margin_left + i * graph_width / div_x,
 				             height - margin_bottom + text_size + 2);
 			}
