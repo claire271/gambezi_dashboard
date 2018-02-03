@@ -763,14 +763,12 @@ function create_graph_number(gambeziNode0, div, contents0) {
 			// Shift until correct
 			while(index != 1) {
 				let temp0 = buffer0[0];
-				for(let i = 1;i < buffer_length;i++) {
-					buffer0[i-1] = buffer0[i];
-				}
-				buffer0[buffer_length-1] = temp0;
 				let temp1 = buffer1[0];
 				for(let i = 1;i < buffer_length;i++) {
+					buffer0[i-1] = buffer0[i];
 					buffer1[i-1] = buffer1[i];
 				}
+				buffer0[buffer_length-1] = temp0;
 				buffer1[buffer_length-1] = temp1;
 
 				index--;
@@ -853,7 +851,7 @@ function create_graph_number(gambeziNode0, div, contents0) {
 			ctx.stroke();
 			ctx.strokeStyle = color1;
 			ctx.beginPath();
-			for(let i = 1;i < buffer_length;i++) {
+			for(let i = 0;i < buffer_length;i++) {
 				let y0 = height - margin_bottom - (buffer1[i] - min_y) * y_interval;
 				let y1 = height - margin_bottom - (buffer1[(i+1)%buffer_length] - min_y) * y_interval;
 				if(!isNaN(y0) && y0 >= margin_top && y0 <= height - margin_bottom &&
@@ -890,11 +888,23 @@ function create_graph_number(gambeziNode0, div, contents0) {
 			ctx.moveTo(margin_left + cursor_x * x_interval, margin_top);
 			ctx.lineTo(margin_left + cursor_x * x_interval, height - margin_bottom);
 			ctx.stroke();
+
+			// Draw cursor text
 			ctx.font = text_font;
 			ctx.fillStyle = cursor_color;
-			ctx.fillText(((cursor_x + offset + (cursor_x <= last_index ? buffer_length : 0)) * refresh_rate / 1000).toPrecision(4) + 's',
-				         margin_left + cursor_x * x_interval,
+			ctx.fillText(((cursor_x + offset + (cursor_x <= cursor_x ? buffer_length : 0)) * refresh_rate / 1000).toPrecision(4) + 's',
+				         margin_left + cursor_x * x_interval + 2,
 				         margin_top - 2);
+			ctx.font = text_font;
+			ctx.fillStyle = color0;
+			ctx.fillText((buffer0[cursor_x % buffer_length]).toPrecision(4),
+				         margin_left + cursor_x * x_interval + 2,
+				         margin_top * 2 - 2);
+			ctx.font = text_font;
+			ctx.fillStyle = color1;
+			ctx.fillText((buffer1[cursor_x % buffer_length]).toPrecision(4),
+				         margin_left + cursor_x * x_interval + 2,
+				         margin_top * 3 - 2);
 
 			// Draw horizontal labels
 			ctx.fillStyle = text_color;
