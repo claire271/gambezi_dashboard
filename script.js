@@ -1124,6 +1124,7 @@ function saveLayout() {
 	}
 	return output;
 }
+
 function openLayout(data) {
 	// Remove old elements
 	let divs = document.querySelector('#view').children;
@@ -1164,3 +1165,31 @@ function openLayout(data) {
 		}
 	}
 }
+
+document.querySelector('#save_button').onclick = function(event) {
+	let blob = new Blob([saveLayout()], {type: 'text/plain;charset=utf-8'});
+	saveAs(blob, 'gambezi_dashboard.txt');
+};
+
+document.querySelector('#open_button').onclick = function(event) {
+	let reader = new FileReader();
+	reader.onloadend = function() {
+		openLayout(reader.result);
+	}
+	reader.onerror = function () {
+		alert('Error reading file');
+	}
+	reader.readAsText(document.querySelector('#file_selector').files[0]);
+};
+
+window.onbeforeunload = function(event) {
+	localStorage.setItem('gambezi_dashboard_layout', saveLayout());
+};
+
+setTimeout(function() {
+	let value = localStorage.getItem('gambezi_dashboard_layout');
+	console.log(value);
+	if(value != null) {
+		openLayout(value);
+	}
+}, 1000);

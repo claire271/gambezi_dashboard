@@ -83,3 +83,7 @@ body {
 	margin-left: 1em;
 	display: none;
 }
+
+#tree > div:first-child > input {
+	width: 100%;
+}
