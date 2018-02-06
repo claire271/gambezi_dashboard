@@ -268,7 +268,7 @@ function create_view(gambeziNode) {
 function clear_contents(gambeziNode, div, contents) {
 	// Remove all children
 	clearTimeout(div.getAttribute('timer_ident'));
-	contents.parentElement.removeChild(contents);
+	div.removeChild(div.children[1]);
 	contents = document.createElement('div');
 	div.appendChild(contents);
 	return contents;
