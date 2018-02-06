@@ -22,7 +22,7 @@ setInterval(function() {
 	setTimeout(function() {
 		rootNode.buildTree();
 	}, 100);
-}, 1000);
+}, 500);
 
 // Initialize view
 var view = document.querySelector('#view');
@@ -148,7 +148,7 @@ function create_view(gambeziNode) {
 			button.innerHTML = 'Remove';
 			button.onclick = function(event) {
 				view.removeChild(menu);
-				contents = clear_contents(gambeziNode, div, contents);
+				clear_contents(gambeziNode, div);
 				view.removeChild(div);
 			};
 			menu.appendChild(document.createElement('br'));
@@ -158,8 +158,8 @@ function create_view(gambeziNode) {
 			button.innerHTML = 'Input Number';
 			button.onclick = function(event) {
 				view.removeChild(menu);
-				contents = clear_contents(gambeziNode, div, contents);
-				create_input_number(gambeziNode, div, contents);
+				clear_contents(gambeziNode, div);
+				create_input_number(gambeziNode, div);
 			};
 			menu.appendChild(document.createElement('br'));
 			menu.appendChild(button);
@@ -168,8 +168,8 @@ function create_view(gambeziNode) {
 			button.innerHTML = 'Output Number';
 			button.onclick = function(event) {
 				view.removeChild(menu);
-				contents = clear_contents(gambeziNode, div, contents);
-				create_output_number(gambeziNode, div, contents);
+				clear_contents(gambeziNode, div);
+				create_output_number(gambeziNode, div);
 			};
 			menu.appendChild(document.createElement('br'));
 			menu.appendChild(button);
@@ -178,8 +178,8 @@ function create_view(gambeziNode) {
 			button.innerHTML = 'Input Boolean';
 			button.onclick = function(event) {
 				view.removeChild(menu);
-				contents = clear_contents(gambeziNode, div, contents);
-				create_input_boolean(gambeziNode, div, contents);
+				clear_contents(gambeziNode, div);
+				create_input_boolean(gambeziNode, div);
 			};
 			menu.appendChild(document.createElement('br'));
 			menu.appendChild(button);
@@ -188,8 +188,8 @@ function create_view(gambeziNode) {
 			button.innerHTML = 'Output Boolean';
 			button.onclick = function(event) {
 				view.removeChild(menu);
-				contents = clear_contents(gambeziNode, div, contents);
-				create_output_boolean(gambeziNode, div, contents);
+				clear_contents(gambeziNode, div);
+				create_output_boolean(gambeziNode, div);
 			};
 			menu.appendChild(document.createElement('br'));
 			menu.appendChild(button);
@@ -198,8 +198,8 @@ function create_view(gambeziNode) {
 			button.innerHTML = 'Input String';
 			button.onclick = function(event) {
 				view.removeChild(menu);
-				contents = clear_contents(gambeziNode, div, contents);
-				create_input_string(gambeziNode, div, contents);
+				clear_contents(gambeziNode, div);
+				create_input_string(gambeziNode, div);
 			};
 			menu.appendChild(document.createElement('br'));
 			menu.appendChild(button);
@@ -208,8 +208,8 @@ function create_view(gambeziNode) {
 			button.innerHTML = 'Output String';
 			button.onclick = function(event) {
 				view.removeChild(menu);
-				contents = clear_contents(gambeziNode, div, contents);
-				create_output_string(gambeziNode, div, contents);
+				clear_contents(gambeziNode, div);
+				create_output_string(gambeziNode, div);
 			};
 			menu.appendChild(document.createElement('br'));
 			menu.appendChild(button);
@@ -218,8 +218,8 @@ function create_view(gambeziNode) {
 			button.innerHTML = 'Log String';
 			button.onclick = function(event) {
 				view.removeChild(menu);
-				contents = clear_contents(gambeziNode, div, contents);
-				create_log_string(gambeziNode, div, contents);
+				clear_contents(gambeziNode, div);
+				create_log_string(gambeziNode, div);
 			};
 			menu.appendChild(document.createElement('br'));
 			menu.appendChild(button);
@@ -228,8 +228,8 @@ function create_view(gambeziNode) {
 			button.innerHTML = 'Button';
 			button.onclick = function(event) {
 				view.removeChild(menu);
-				contents = clear_contents(gambeziNode, div, contents);
-				create_button(gambeziNode, div, contents);
+				clear_contents(gambeziNode, div);
+				create_button(gambeziNode, div);
 			};
 			menu.appendChild(document.createElement('br'));
 			menu.appendChild(button);
@@ -238,8 +238,8 @@ function create_view(gambeziNode) {
 			button.innerHTML = 'Graph Number';
 			button.onclick = function(event) {
 				view.removeChild(menu);
-				contents = clear_contents(gambeziNode, div, contents);
-				create_graph_number(gambeziNode, div, contents);
+				clear_contents(gambeziNode, div);
+				create_graph_number(gambeziNode, div);
 			};
 			menu.appendChild(document.createElement('br'));
 			menu.appendChild(button);
@@ -252,31 +252,29 @@ function create_view(gambeziNode) {
 	header.appendChild(document.createTextNode(gambeziNode.get_string_key().join('/')));
 	header.appendChild(settings);
 	
-	// Create contents
-	let contents = document.createElement('div');
-	create_output_number(gambeziNode, div, contents);
-
 	// Add 
 	div.appendChild(header);
-	div.appendChild(contents);
+	div.appendChild(document.createElement('div'));
 	view.appendChild(div);
+
+	// Create contents
+	create_output_number(gambeziNode, div);
+
 	return div;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // Method for clearing an input output view
-function clear_contents(gambeziNode, div, contents) {
+function clear_contents(gambeziNode, div) {
 	// Remove all children
 	clearTimeout(div.getAttribute('timer_ident'));
 	div.removeChild(div.children[1]);
-	contents = document.createElement('div');
-	div.appendChild(contents);
-	return contents;
+	div.appendChild(document.createElement('div'));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // Input output generation methods
-function create_input_number(gambeziNode, div, contents) {
+function create_input_number(gambeziNode, div) {
 	let field = document.createElement('input');
 	field.type = 'text';
 	field.value = gambeziNode.get_double();
@@ -284,11 +282,11 @@ function create_input_number(gambeziNode, div, contents) {
 	field.onchange = function(event) {
 		gambeziNode.set_double(field.value);
 	};
-	contents.appendChild(field);
+	div.children[1].appendChild(field);
 	div.setAttribute('data_type', 'input_number');
 }
 
-function create_output_number(gambeziNode, div, contents) {
+function create_output_number(gambeziNode, div) {
 	let field = document.createElement('input');
 	field.type = 'text';
 	field.readOnly = true;
@@ -297,26 +295,26 @@ function create_output_number(gambeziNode, div, contents) {
 	let ident = setInterval(function() {
 		field.value = gambeziNode.get_double();
 	}, refresh_rate);
-	contents.appendChild(field);
+	div.children[1].appendChild(field);
 	div.setAttribute('data_type', 'output_number');
 	div.setAttribute('timer_ident', ident);
 }
 
-function create_input_boolean(gambeziNode, div, contents) {
+function create_input_boolean(gambeziNode, div) {
 	let field = document.createElement('input');
 	field.type = 'checkbox';
 	field.checked = gambeziNode.get_boolean();
-	contents.style.backgroundColor = field.checked ? '#00FF00' : '#FF0000';
+	div.children[1].style.backgroundColor = field.checked ? '#00FF00' : '#FF0000';
 	div.style.backgroundColor = '#DFFFDF';
 	field.onchange = function(event) {
 		gambeziNode.set_boolean(field.checked);
-		contents.style.backgroundColor = field.checked ? '#00FF00' : '#FF0000';
+		div.children[1].style.backgroundColor = field.checked ? '#00FF00' : '#FF0000';
 	};
-	contents.appendChild(field);
+	div.children[1].appendChild(field);
 	div.setAttribute('data_type', 'input_boolean');
 }
 
-function create_output_boolean(gambeziNode, div, contents) {
+function create_output_boolean(gambeziNode, div) {
 	let field = document.createElement('input');
 	field.type = 'checkbox';
 	field.disabled = true;
@@ -324,14 +322,14 @@ function create_output_boolean(gambeziNode, div, contents) {
 	div.style.backgroundColor = '#DFDFFF';
 	let ident = setInterval(function() {
 		field.checked = gambeziNode.get_boolean();
-		contents.style.backgroundColor = field.checked ? '#00FF00' : '#FF0000';
+		div.children[1].style.backgroundColor = field.checked ? '#00FF00' : '#FF0000';
 	}, refresh_rate);
-	contents.appendChild(field);
+	div.children[1].appendChild(field);
 	div.setAttribute('data_type', 'output_boolean');
 	div.setAttribute('timer_ident', ident);
 }
 
-function create_input_string(gambeziNode, div, contents) {
+function create_input_string(gambeziNode, div) {
 	let field = document.createElement('input');
 	field.type = 'text';
 	field.value = gambeziNode.get_string();
@@ -339,11 +337,11 @@ function create_input_string(gambeziNode, div, contents) {
 	field.onchange = function(event) {
 		gambeziNode.set_string(field.value);
 	};
-	contents.appendChild(field);
+	div.children[1].appendChild(field);
 	div.setAttribute('data_type', 'input_string');
 }
 
-function create_output_string(gambeziNode, div, contents) {
+function create_output_string(gambeziNode, div) {
 	let field = document.createElement('input');
 	field.type = 'text';
 	field.readOnly = true;
@@ -352,12 +350,12 @@ function create_output_string(gambeziNode, div, contents) {
 	let ident = setInterval(function() {
 		field.value = gambeziNode.get_string();
 	}, refresh_rate);
-	contents.appendChild(field);
+	div.children[1].appendChild(field);
 	div.setAttribute('data_type', 'output_string');
 	div.setAttribute('timer_ident', ident);
 }
 
-function create_log_string(gambeziNode, div, contents) {
+function create_log_string(gambeziNode, div) {
 	let field = document.createElement('textarea');
 	field.type = 'text';
 	field.readOnly = true;
@@ -377,22 +375,22 @@ function create_log_string(gambeziNode, div, contents) {
 			field.scrollTop = field.scrollHeight - field.clientHeight;
 		}
 	};
-	contents.appendChild(field);
+	div.children[1].appendChild(field);
 	div.setAttribute('data_type', 'log_string');
 }
 
-function create_button(gambeziNode, div, contents) {
+function create_button(gambeziNode, div) {
 	let field = document.createElement('button');
 	field.innerHTML = 'Send';
 	div.style.backgroundColor = '#DFFFDF';
 	field.onclick = function(event) {
 		gambeziNode.set_boolean(true);
 	};
-	contents.appendChild(field);
+	div.children[1].appendChild(field);
 	div.setAttribute('data_type', 'button');
 }
 
-function create_graph_number(gambeziNode0, div, contents0) {
+function create_graph_number(gambeziNode0, div) {
 	// Parameters
 	let margin_top = 20;
 	let margin_left = 50;
@@ -787,14 +785,14 @@ function create_graph_number(gambeziNode0, div, contents0) {
 	};
 
 	// Create content area
-	let contents1 = document.createElement('div');
-	contents1.style.flex = '1 1 auto';
+	let contents = document.createElement('div');
+	contents.style.flex = '1 1 auto';
 
 	// Add divs
-	contents0.style.display = 'flex';
-	contents0.style.flexFlow = 'column';
-	contents0.appendChild(header1);
-	contents0.appendChild(contents1);
+	div.children[1].style.display = 'flex';
+	div.children[1].style.flexFlow = 'column';
+	div.children[1].appendChild(header1);
+	div.children[1].appendChild(contents);
 
 	// Canvas setup
 	let canvas = document.createElement('canvas');
@@ -808,7 +806,7 @@ function create_graph_number(gambeziNode0, div, contents0) {
 	div.style.backgroundColor = '#DFDFFF';
 	let ident = setInterval(function() {
 		// Draw background
-		let width = contents1.clientWidth;
+		let width = contents.clientWidth;
 		let height = div.clientHeight - div.firstChild.clientHeight - header1.clientHeight;
 		canvas.width = width;
 		canvas.height = height;
@@ -1002,7 +1000,7 @@ function create_graph_number(gambeziNode0, div, contents0) {
 			}
 		}
 	}, refresh_rate);
-	contents1.appendChild(canvas);
+	contents.appendChild(canvas);
 	div.setAttribute('data_type', 'graph_number');
 	div.setAttribute('timer_ident', ident);
 }
@@ -1147,7 +1145,7 @@ function openLayout(data) {
 			div.setAttribute('data-y', parts[2]);
 			div.style.width = parts[3];
 			div.style.height = parts[4];
-			div.children[1] = clear_contents(gambeziNode, div, div.children[1]);
+			clear_contents(gambeziNode, div);
 			switch(parts[5]) {
 				case 'input_number':   create_input_number(gambeziNode, div, div.children[1]);   break;
 				case 'output_number':  create_output_number(gambeziNode, div, div.children[1]);  break;
@@ -1182,13 +1180,16 @@ document.querySelector('#open_button').onclick = function(event) {
 	reader.readAsText(document.querySelector('#file_selector').files[0]);
 };
 
+document.querySelector('#clear_button').onclick = function(event) {
+	openLayout('');
+}
+
 window.onbeforeunload = function(event) {
 	localStorage.setItem('gambezi_dashboard_layout', saveLayout());
 };
 
 setTimeout(function() {
 	let value = localStorage.getItem('gambezi_dashboard_layout');
-	console.log(value);
 	if(value != null) {
 		openLayout(value);
 	}
