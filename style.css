@@ -87,3 +87,8 @@ body {
 #tree > div:first-child > input {
 	width: 100%;
 }
+
+#tree > div:first-child > button {
+	border-left: 0px;
+	border-right: 0px;
+}
