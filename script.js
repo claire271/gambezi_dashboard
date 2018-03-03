@@ -7,10 +7,10 @@ var graph_secondary_update = null;
 // Initialize gambezi
 var refresh_rate = 100;
 //var gambezi = new Gambezi('pivision.local:5809');
-var gambezi = new Gambezi('localhost:5809');
-//var gambezi = new Gambezi('10.17.47.2:5809');
+//var gambezi = new Gambezi('localhost:5809');
+var gambezi = new Gambezi('10.17.47.2:5809');
 gambezi.set_refresh_rate(refresh_rate);
-gambezi.set_default_subscription(1);
+gambezi.set_default_subscription(0xFFFF);
 
 // Initialize root node
 var rootNode = new DataNode(gambezi.get_root_node(), null);
@@ -649,6 +649,7 @@ function create_graph_number(gambeziNode0, div) {
 					header1.removeChild(header1.firstChild);
 					let subtitle = '';
 					if(gambeziNode1 != null) {
+						gambeziNode1.set_subscription(1);
 						subtitle = gambeziNode1.get_string_key().join('/');
 					}
 					header1.insertBefore(document.createTextNode(subtitle), settings1);
@@ -762,6 +763,7 @@ function create_graph_number(gambeziNode0, div) {
 		let name1 = String(parameters[i++]);
 		if(name1 != '') {
 			gambeziNode1 = gambezi.get_node(name1);
+			gambeziNode1.set_subscription(1)
 			header1.removeChild(header1.firstChild);
 			header1.insertBefore(document.createTextNode(gambeziNode1.get_string_key().join('/')), settings1);
 		}
