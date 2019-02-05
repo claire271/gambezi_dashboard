@@ -4,6 +4,20 @@ var tree_button_state = 'add';
 var graph_secondary_update = null;
 
 ////////////////////////////////////////////////////////////////////////////////
+// Handle global pause
+var global_paused = false;
+var global_paused_button = document.querySelector('#global_pause');
+global_paused_button.onchange = function(event) {
+	global_paused = global_paused_button.checked;
+};
+document.addEventListener('keydown', function(event) {
+	if('pP'.includes(event.key)) {
+		global_paused = !global_paused;
+		global_paused_button.checked = global_paused;
+	}
+});
+
+////////////////////////////////////////////////////////////////////////////////
 // Initialize gambezi
 var refresh_rate = 100;
 //var gambezi = new Gambezi('pivision.local:5809');
@@ -816,7 +830,7 @@ function create_graph_number(gambeziNode0, div) {
 		ctx.fillRect(0, 0, width, height);
 
 		// Get new data
-		if(!paused) {
+		if(!paused && !global_paused) {
 			buffer0[index] = gambeziNode0.get_double();
 			if(gambeziNode1 != null) {
 				buffer1[index] = gambeziNode1.get_double();

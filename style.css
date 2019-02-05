@@ -84,7 +84,7 @@ body {
 	display: none;
 }
 
-#tree > div:first-child > input {
+#tree > div:first-child > input:first-of-type {
 	width: 100%;
 }
 
